@@ -1,242 +1,238 @@
 import Foundation
 
-// https://craftinginterpreters.com/scanning.html#reserved-words-and-identifiers
-
 enum TokenType {
-  case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
-  case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
-  case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL
-  case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, EOF
+    case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
+    case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
+    case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL
+    case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, EOF
+    case NUMBER, STRING // Added STRING case
 }
 
 class Token {
-  final let type: TokenType
-  final let lexeme: String
-  final let literal: Any?
-  final let line: Int
-  final let column: Int
+    let type: TokenType
+    let lexeme: String
+    let literal: Any?
+    let line: Int
 
-  init(type: TokenType, lexeme: String, literal: Any?, line: Int, column: Int) {
-    self.type = type
-    self.lexeme = lexeme
-    self.literal = literal
-    self.line = line
-    self.column = column
-  }
+    init(type: TokenType, lexeme: String, literal: Any?, line: Int) {
+        self.type = type
+        self.lexeme = lexeme
+        self.literal = literal
+        self.line = line
+    }
 
-  func toString() -> String {
-    return "Token(type: \(type), lexeme: \(lexeme), literal: \(literal ?? "nil"))"
-  }
+    func toString() -> String {
+        return "Token(type: \(type), lexeme: \(lexeme), literal: \(literal ?? "nil"))"
+    }
 }
 
 class Scanner {
-  final let source: String
-  var tokens: [Token]
-  private var start: Int = 0
-  private var current: Int = 0
-  private var line: Int = 1
+    let source: String
+    var tokens: [Token] = []
+    private var start: String.Index
+    private var current: String.Index
+    private var line: Int = 1
 
-  init(source: String) {
-    self.source = source
-  }
-
-  func scanTokens() -> [Token] {
-    while !self.isAtEnd() {
-      start = current
-      self.scanToken()
+    init(source: String) {
+        self.source = source
+        self.start = source.startIndex
+        self.current = source.startIndex
     }
 
-    tokens.append(Token(type: .EOF, lexeme: "", literal: nil, line: line))
-    return tokens
-  }
-
-  func isAtEnd() -> Bool {
-    current >= source.length();
-  }
-
-  func scanToken() {
-    let c: String = advance();
-    switch (c) {
-      case "(": addToken(.LEFT_PAREN); break;
-      case ")": addToken(.RIGHT_PAREN); break;
-      case "{": addToken(.LEFT_BRACE); break;
-      case "{": addToken(.RIGHT_BRACE); break;
-      case ",": addToken(.COMMA); break;
-      case ".": addToken(.DOT); break;
-      case "-": addToken(.MINUS); break;
-      case "+": addToken(.PLUS); break;
-      case ";": addToken(.SEMICOLON); break;
-      case "*": addToken(.STAR); break; 
-      case "!":
-        addToken(match("=") ? .BANG_EQUAL : .BANG);
-        break;
-      case "=":
-        addToken(match("=") ? .EQUAL_EQUAL : .EQUAL);
-        break;
-      case "<":
-        addToken(match("=") ? .LESS_EQUAL : .LESS);
-        break;
-      case ">":
-        addToken(match("=") ? .GREATER_EQUAL : .GREATER);
-        break;
-      case "/":
-        if (match("/")) {
-          while (peek() != "\n" && !isAtEnd()) { advance() }
-        } else {
-          addToken(.SLASH);
+    func scanTokens() -> [Token] {
+        while !isAtEnd() {
+            start = current
+            scanToken()
         }
-        break;
-      case "\"": string(); break;
-      default: 
-        if (isDigit(c)) { 
-          number()
-          break
+
+        tokens.append(Token(type: .EOF, lexeme: "", literal: nil, line: line))
+        return tokens
+    }
+
+    func isAtEnd() -> Bool {
+        current >= source.endIndex
+    }
+
+    func scanToken() {
+        let c = advance()
+        switch c {
+        case "(": addToken(.LEFT_PAREN)
+        case ")": addToken(.RIGHT_PAREN)
+        case "{": addToken(.LEFT_BRACE)
+        case "}": addToken(.RIGHT_BRACE)
+        case ",": addToken(.COMMA)
+        case ".": addToken(.DOT)
+        case "-": addToken(.MINUS)
+        case "+": addToken(.PLUS)
+        case ";": addToken(.SEMICOLON)
+        case "*": addToken(.STAR)
+        case "!":
+            addToken(match(expected: "=") ? .BANG_EQUAL : .BANG)
+        case "=":
+            addToken(match(expected: "=") ? .EQUAL_EQUAL : .EQUAL)
+        case "<":
+            addToken(match(expected: "=") ? .LESS_EQUAL : .LESS)
+        case ">":
+            addToken(match(expected: "=") ? .GREATER_EQUAL : .GREATER)
+        case "/":
+            if match(expected: "/") {
+                while peek() != "\n" && !isAtEnd() { advance() }
+            } else {
+                addToken(.SLASH)
+            }
+        case "\"": string()
+        default:
+            let char = c
+            if isDigit(String(char)) {
+                number()
+            } else {
+                Cybro().error(line: self.line, message: "Unexpected character \(c)")
+            }
         }
-        Cybro().error(line: self.line, message: "Unexpected character \(c)")
-        break;
-    }
-  }
-
-  func isDigit(c: String) -> Bool {
-    return c >= "0" && c <= "9"
-  }
-
-  func number() {
-    while (isDigit(peek())) { advance() };
-
-    if (peek() == "." && isDigit(peekNext())) {
-      advance();
-
-      while (isDigit(peek())) { advance() };
     }
 
-    addToken(.NUMBER, Double(lexeme)!)
-  }
-
-  func peekNext() -> String {
-    if (isAtEnd()) { return "\0" }
-    return source.substring(with: Index(encodedOffset: current + 1))
-  }
-
-  func string() {
-    while peek != "\"" && !isAtEnd() {
-      if peek == "\n" { line += 1 }
-      advance()
+    func isDigit(_ c: String) -> Bool {
+        c >= "0" && c <= "9"
     }
 
-    if (isAtEnd()) {
-      Cybro().error(line: self.line, message: "Unterminated string.");
-      return
+    func number() {
+        while let peeked = peek(), isDigit(String(peeked)) { advance() }
+
+        if peek() == ".", let next = peekNext(), isDigit(String(next)) {
+            advance()
+
+            while let peeked = peek(), isDigit(String(peeked)) { advance() }
+        }
+
+        let lexeme = String(source[start..<current])
+        let value = Double(lexeme)!
+        addToken(.NUMBER, literal: value)
     }
 
-    advance()
+    func peekNext() -> Character? {
+        let nextIndex = source.index(after: current)
+        guard nextIndex < source.endIndex else { return nil }
+        return source[nextIndex]
+    }
 
-    let value = source.substring(with: start + 1, to: current - 1)
-    addToken(.STRING, value)
-  }
+    func string() {
+        while let char = peek(), char != "\"" && !isAtEnd() {
+            if char == "\n" { line += 1 }
+            advance()
+        }
 
-  func match(expected: String) -> Bool {
-    if self.isAtEnd() { return false }
-    if source.substring(with: Range(self.current..<self.current + expected.length())) != expected { return false }
-    self.current += 1
-    return true
-  }
+        if isAtEnd() {
+            Cybro().error(line: self.line, message: "Unterminated string.")
+            return
+        }
 
-  func peek() -> String {
-    if self.isAtEnd() { return "\0" }
-    return source.substring(with: Range(self.current..<self.current + 1))
-    
-  }
+        advance() // Consume the closing "
 
-  func advance() -> String {
-    let value = self.source[self.current];
-    self.current += 1
-    return value
-  }
+        let value = String(source[source.index(after: start)..<source.index(before: current)])
+        addToken(.STRING, literal: value)
+    }
 
-  func addToken(_ type: TokenType) {
-    addToken(type, nil)
-  }
+    @discardableResult func match(expected: Character) -> Bool {
+        guard !isAtEnd() && source[current] == expected else { return false }
+        current = source.index(after: current)
+        return true
+    }
 
-  func addToken(_ type: TokenType, literal: Any?) {
-    let text: String = self.source.substring(with: self.start..<self.current)
-    tokens.append(Token(type: type, lexeme: text, literal: literal, line: line))
-  }
+    func peek() -> Character? {
+        isAtEnd() ? nil : source[current]
+    }
+
+    @discardableResult func advance() -> Character {
+        defer { current = source.index(after: current) }
+        return source[current]
+    }
+
+    func addToken(_ type: TokenType, literal: Any? = nil) {
+        let lexeme = String(source[start..<current])
+        tokens.append(Token(type: type, lexeme: lexeme, literal: literal, line: line))
+    }
 }
 
 class Cybro {
     var hadError = false
+
+    init() {
+        self.hadError = false
+    }
+
     func run() {
-      let args = CommandLine.arguments
-      if args.count > 2 {
-        print("Usage: cybro <script>")
-      } else if (args.count == 2) {
-        self.runScript(script: args[1])
-      } else {
-        self.runPrompt()
-      }
+        let args = CommandLine.arguments
+        if args.count > 2 {
+            print("Usage: cybro <script>")
+        } else if args.count == 2 {
+            runScript(script: args[1])
+        } else {
+            runPrompt()
+        }
     }
 
     func runScript(script: String) {
-      let data = try! Data(contentsOf: URL(fileURLWithPath: script))
-      let scriptString = String(data: data, encoding: .utf8)!
-      
-      self.run(scriptContent: scriptString)
-      if self.hadError == true {
-        exit(65)
-      }
+        let data = try! Data(contentsOf: URL(fileURLWithPath: script))
+        let scriptString = String(data: data, encoding: .utf8)!
+        run(scriptContent: scriptString)
+        if hadError {
+            exit(65)
+        }
     }
 
     func runPrompt() {
-      print("Welcome to Cybro!")
-      print("Type 'exit' to quit")
-      print("Type 'help' for help")
-      print("Type 'clear' to clear the screen")
-      print("Type 'run <script>' to run a script")
-      print("Type 'run <script> <args...>' to run a script with arguments")
+        print("Welcome to Cybro!")
+        print("Type 'exit' to quit")
+        print("Type 'help' for help")
+        print("Type 'clear' to clear the screen")
+        print("Type 'run <script>' to run a script")
+        print("Type 'run <script> <args...>' to run a script with arguments")
 
-      while true {
-        print("⇝ ", terminator: "")
-        let input = readLine()!
-        if input == "exit" {
-          break
-        } else if input == "help" {
-          print("TODO")
-        } else if input.split(separator: " ").first == "echo" {
-          print(input.split(separator: " ").dropFirst().joined(separator: " "))
-        } 
-        else if input == "clear" {
-          print("\u{001B}[2J")
-        } else if input == "" {
-          print("E: No input. Exiting REPL")
-          break
-        }
-        else {
-          self.run(scriptContent: input)
-        }
+        while true {
+            print("⇝ ", terminator: "")
+            guard let input = readLine(), !input.isEmpty else {
+                print("E: No input. Exiting REPL")
+                break
+            }
 
-        self.hadError = false
-      }
+            switch input {
+            case "exit":
+                return
+            case "help":
+                print("TODO")
+            case "clear":
+                print("\u{001B}[2J")
+            default:
+                if input.hasPrefix("echo ") {
+                    print(input.dropFirst(5))
+                } else {
+                    run(scriptContent: input)
+                }
+            }
+
+            hadError = false
+        }
     }
 
     func run(scriptContent: String) {
-      for token in scriptContent {
-        print(token)
-      }
+        let scanner = Scanner(source: scriptContent)
+        let tokens = scanner.scanTokens()
+
+        for token in tokens {
+            print(token.toString())
+        }
     }
 
     func error(line: Int, message: String) {
-      self.report(line: line, where_: "", message: message)
+        report(line: line, where_: "", message: message)
     }
 
     func report(line: Int, where_: String, message: String) {
-      print(
-        "[line \(line)] \(where_): error: \(message)"
-      )
+        print("[line \(line)] \(where_): error: \(message)")
     }
-  
-
 }
 
 // Run the Cybro shell
-Cybro().run()
+let val = Cybro()
+val.run()
+
