@@ -7,6 +7,26 @@ enum TokenType {
   case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, EOF
 }
 
+class Token {
+  final let type: TokenType
+  final let lexeme: String
+  final let literal: Any?
+  final let line: Int
+  final let column: Int
+
+  init(type: TokenType, lexeme: String, literal: Any?, line: Int, column: Int) {
+    self.type = type
+    self.lexeme = lexeme
+    self.literal = literal
+    self.line = line
+    self.column = column
+  }
+
+  func toString() -> String {
+    return "Token(type: \(type), lexeme: \(lexeme), literal: \(literal ?? "nil"))"
+  }
+}
+
 class Cybro {
     var hadError = false
     func run() {
