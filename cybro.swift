@@ -1,5 +1,8 @@
 import Foundation
 
+// https://craftinginterpreters.com/scanning.html#reserved-words-and-identifiers
+// Almost at the bottom of the page 
+
 enum TokenType {
     case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
     case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
