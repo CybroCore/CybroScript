@@ -85,7 +85,12 @@ class Scanner {
             let char = c
             if isDigit(String(char)) {
                 number()
-            } else {
+            } else if char == " " || char == "\t" || char == "\r" {
+                // Ignore whitespace
+            } else if char == "\n" {
+                line += 1
+            }
+            else {
                 Cybro().error(line: self.line, message: "Unexpected character \(c)")
             }
         }
