@@ -8,6 +8,25 @@ enum TokenType {
     case NUMBER, STRING, IDENTIFIER 
 }
 
+let keywords: [String: TokenType] = [
+    "and": .AND,
+    "class": .CLASS,
+    "else": .ELSE,
+    "false": .FALSE,
+    "for": .FOR,
+    "fun": .FUN,
+    "if": .IF,
+    "nil": .NIL,
+    "or": .OR,
+    "print": .PRINT,
+    "return": .RETURN,
+    "super": .SUPER,
+    "this": .THIS,
+    "true": .TRUE,
+    "var": .VAR,
+    "while": .WHILE
+]
+
 class Token {
     let type: TokenType
     let lexeme: String
@@ -108,8 +127,13 @@ class Scanner {
 
     func identifier() {
         while let peeked = peek(), isAlpha(peeked) { advance() }
-
-        addToken(.IDENTIFIER);
+        
+        let lexeme = String(source[start..<current])
+        if let tokentype = keywords[lexeme] {
+            addToken(tokentype)
+        } else {
+            addToken(.IDENTIFIER)
+        }
       }
 
     func isDigit(_ c: String) -> Bool {
