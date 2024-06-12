@@ -1,5 +1,12 @@
 import Foundation
 
+enum TokenType {
+  case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
+  case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
+  case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL
+  case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, EOF
+}
+
 class Cybro {
     var hadError = false
     func run() {
