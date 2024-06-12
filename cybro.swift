@@ -5,7 +5,7 @@ enum TokenType {
     case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
     case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL
     case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, EOF
-    case NUMBER, STRING // Added STRING case
+    case NUMBER, STRING, IDENTIFIER 
 }
 
 class Token {
@@ -81,6 +81,10 @@ class Scanner {
                 addToken(.SLASH)
             }
         case "\"": string()
+        case "o":
+            if match(expected: "r") && peek() == " " {
+                addToken(.OR)
+            }
         default:
             let char = c
             if isDigit(String(char)) {
@@ -89,12 +93,24 @@ class Scanner {
                 // Ignore whitespace
             } else if char == "\n" {
                 line += 1
-            }
-            else {
+            } 
+            else if isAlpha(char) {
+                identifier()
+            } else {
                 Cybro().error(line: self.line, message: "Unexpected character \(c)")
             }
         }
     }
+
+    func isAlpha(_ c: Character) -> Bool {
+        (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_"
+    }
+
+    func identifier() {
+        while let peeked = peek(), isAlpha(peeked) { advance() }
+
+        addToken(.IDENTIFIER);
+      }
 
     func isDigit(_ c: String) -> Bool {
         c >= "0" && c <= "9"
