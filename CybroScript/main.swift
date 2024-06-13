@@ -7,9 +7,42 @@
 
 import Foundation
 
-// https://craftinginterpreters.com/evaluating-expressions.html#running-the-interpreter
+// https://craftinginterpreters.com/statements-and-state.html#assignment-syntax
+struct Environment {
+    var storage: [String : Any] = [:]
+    
+    mutating func define(name: String, value: Any?) {
+        storage[name] = value
+    }
+    
+    func get(name: Token) -> Any? {
+        if storage.keys.contains(name.lexeme) {
+            return storage[name.lexeme]
+        }
+        
+        print("IMPLEMENT THROW RUNTIME ERROR")
+        return ""
+    }
+}
 
-struct Interpreter_: Visitor {
+class Interpreter_: Visitor {
+    var environemnt = Environment()
+    
+    init(environemnt: Environment = Environment()) {
+        self.environemnt = environemnt
+    }
+    
+    func visitVar(_ declarations: Var) -> Any? {
+        var value = evaluate(expr: declarations.initializer)
+        
+        environemnt.define(name: declarations.name.lexeme, value: value)
+        return nil
+    }
+    
+    func visitVariable(_ declarations: Variable) -> Any? {
+        return environemnt.get(name: declarations.name)
+    }
+    
     func visitTernary(_ declarations: Ternary) -> Any? {
         return ""
     }

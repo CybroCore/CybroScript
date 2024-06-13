@@ -126,6 +126,10 @@ class Parser {
             return Literal(value: previous().literal)
         }
         
+        if (match(types: .IDENTIFIER)) {
+              return Variable(name: previous());
+        }
+        
         if (match(types: .LEFT_PAREN)) {
             var expr = try expression();
             try consume(type: .RIGHT_PAREN, message: "Expect ')' after expression.");
@@ -182,13 +186,40 @@ class Parser {
         var statements: [Declarations] = []
             while !isAtEnd() {
            do {
-             statements.append(try statement())
+             let out = try declaration()
+               if out == nil {
+                   continue
+               }
+             statements.append(out!)
            } catch {
                print("HANDLE THE ERROR")
            }
         }
         return statements
     }
+    
+    func declaration() -> Declarations? {
+        do {
+            if (match(types: .VAR)) { return try varDeclaration() };
+
+          return try statement();
+        } catch {
+          synchronize();
+          return nil
+        }
+      }
+    
+    func varDeclaration() throws -> Declarations {
+        let name = try consume(type: .IDENTIFIER, message: "Expect variable name.")
+
+        var initializer: Declarations? = nil;
+        if (match(types: .EQUAL)) {
+          initializer = try expression();
+        }
+
+        try consume(type: .SEMICOLON, message: "Expect ';' after variable declaration.")
+        return Var(name: name, initializer: initializer!);
+      }
     
     func statement() throws -> Declarations {
         if match(types: .PRINT) { return try printStatement() };
