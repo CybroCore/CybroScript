@@ -1,7 +1,7 @@
 import Foundation
 
 struct AstPrinter {
-    static func print(_ expr: Expr) -> String {
+    static func print(_ expr: Declarations) -> String {
         if let expr = expr as? Binary {
             return parenthesize(expr.operator_.lexeme, expr.left, expr.right)
         }
@@ -17,7 +17,7 @@ struct AstPrinter {
         return ""
     }
 
-    static func parenthesize(_ name: String, _ exprs: Expr...) -> String {
+    static func parenthesize(_ name: String, _ exprs: Declarations...) -> String {
         var result = "(" + name
         for expr in exprs {
             result += " " + AstPrinter.print(expr)

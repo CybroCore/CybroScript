@@ -10,6 +10,21 @@ import Foundation
 // https://craftinginterpreters.com/evaluating-expressions.html#running-the-interpreter
 
 struct Interpreter_: Visitor {
+    func visitTernary(_ declarations: Ternary) -> Any? {
+        return ""
+    }
+    
+    func visitExpression(_ declarations: Expression) -> Any? {
+        evaluate(expr: declarations.expression)
+    }
+    
+    func visitPrint(_ declarations: Print) -> Any? {
+        let value = evaluate(expr: declarations.expression)
+        guard let value = value else { return nil }
+        print("\(value)")
+        return ""
+    }
+    
     typealias ReturnType = Any?
 
     func visitLiteral(_ expr: Literal) -> Any? {
@@ -20,7 +35,7 @@ struct Interpreter_: Visitor {
         return evaluate(expr: expr.expression)
     }
 
-    func evaluate(expr: Expr) -> Any? {
+    func evaluate(expr: Declarations) -> Any? {
         return expr.accept(self)
     }
 
@@ -132,9 +147,18 @@ struct Interpreter_: Visitor {
         return nil;
 }
     
-    func interpret(expression_: Expr) {
-        let value = evaluate(expr: expression_);
-        print("\(value ?? "nil")");
+    func interpret(statements: [Declarations]) {
+        do {
+              for statement in statements {
+                  try execute(stmt: statement);
+              }
+            } catch {
+                print("Errors")
+            }
+      }
+    
+    func execute(stmt: Declarations) {
+        stmt.accept(self);
       }
 }
 
@@ -154,7 +178,7 @@ let keywords: [String: TokenType] = [
     "for": .FOR,
     "fun": .FUN,
     "if": .IF,
-    "nil": .NIL,
+    "nyl": .NIL,
     "or": .OR,
     "print": .PRINT,
     "return": .RETURN,
@@ -258,10 +282,6 @@ class Scanner {
                 addToken(.SLASH)
             }
         case "\"": string()
-        case "o":
-            if match(expected: "r") && peek() == " " {
-                addToken(.OR)
-            }
         default:
             let char = c
             if isDigit(String(char)) {
@@ -426,14 +446,14 @@ class Cybro {
         let scanner = Scanner(source: scriptContent)
         let tokens = scanner.scanTokens()
         let parser = Parser(tokens: tokens)
-        let expression = parser.parse()
+        let statements = parser.parse()
         
         if hadError {
             return
         }
         
-        guard let expression = expression else { return }
-            interpreter.interpret(expression_: expression)
+        guard let statements = statements else { return }
+            interpreter.interpret(statements: statements)
     }
 
     static func error(line: Int, message: String) {

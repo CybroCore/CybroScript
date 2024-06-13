@@ -9,6 +9,18 @@ import Foundation
 
 
 class Interpreter: Visitor {
+    func visitTernary(_ declarations: Ternary) -> Any? {
+        <#code#>
+    }
+    
+    func visitExpression(_ declarations: Expression) -> Any? {
+        <#code#>
+    }
+    
+    func visitPrint(_ declarations: Print) -> Any? {
+        <#code#>
+    }
+    
     init() {}
     typealias ReturnType = Any?
 
@@ -20,7 +32,7 @@ class Interpreter: Visitor {
         return evaluate(expr: expr.expression)
     }
 
-    func evaluate(expr: Expr) -> Any? {
+    func evaluate(expr: Declarations) -> Any? {
         return expr.accept(self)
     }
 

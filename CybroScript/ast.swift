@@ -32,13 +32,15 @@ struct GenerateAst {
             exit(64)
         }
         let outputDir = args[1]
-        defineAst(outputDir, "Expr", [
-            "Binary   : left: Expr, operator_: Token, right: Expr",
-            "Grouping : expression: Expr",
+        defineAst(outputDir, "Declarations", [
+            "Binary   : left: Declarations, operator_: Token, right: Declarations",
+            "Grouping : expression: Declarations",
             "Literal  : value: Any?",
-            "Unary    : operator_: Token, right: Expr",
-            "Ternary  : value1: Any?, op1: Token, value2: Any, op2: Token, value3: Any?"
-        ])
+            "Unary    : operator_: Token, right: Declarations",
+            "Ternary  : value1: Any?, op1: Token, value2: Any, op2: Token, value3: Any?",
+            "Expression : expression: Declarations",
+            "Print      : expression: Declarations"
+            ]);
     }
 
     func defineAst(_ outputDir: String, _ baseName: String, _ types: [String]) {
@@ -86,7 +88,7 @@ struct GenerateAst {
                 print("Error: Field format is incorrect: \(field)")
                 exit(1)
             }
-            writer.writeLine("        self.\(nameParts[0]) = \(nameParts[0])")
+            writer.writeLine("        self.\(nameParts[0].replacingOccurrences(of: ":", with: "")) = \(nameParts[0].replacingOccurrences(of: ":", with: ""))")
         }
         writer.writeLine("    }")
         writer.writeLine()
@@ -111,3 +113,4 @@ struct GenerateAst {
 func runGenerator() {
     GenerateAst().run()
 }
+

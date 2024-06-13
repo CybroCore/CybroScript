@@ -20,12 +20,12 @@ class Parser {
         self.current = current
     }
     
-    func expression() throws -> Expr {
+    func expression() throws -> Declarations {
         return try equality()
     }
     
-    func equality() throws -> Expr {
-        var expr: Expr = try comparison()
+    func equality() throws -> Declarations {
+        var expr: Declarations = try comparison()
         
         while match(types: .BANG_EQUAL, .EQUAL_EQUAL) {
             let operator_ = previous()
@@ -36,7 +36,7 @@ class Parser {
         return expr
     }
     
-    func comparison() throws -> Expr {
+    func comparison() throws -> Declarations {
         var expr = try term();
         
         while (match(types: .GREATER, .GREATER_EQUAL, .LESS, .LESS_EQUAL, .MIN, .MAX)) {
@@ -48,7 +48,7 @@ class Parser {
         return expr;
     }
     
-    func term() throws -> Expr {
+    func term() throws -> Declarations {
         var expr = try factor();
         
         while (match(types: .MINUS, .PLUS)) {
@@ -60,7 +60,7 @@ class Parser {
         return expr;
     }
     
-    func factor() throws -> Expr {
+    func factor() throws -> Declarations {
         var expr = try unary();
         
         while (match(types: .SLASH, .STAR)) {
@@ -107,7 +107,7 @@ class Parser {
         return tokens[current - 1]
     }
     
-    func unary() throws -> Expr {
+    func unary() throws -> Declarations {
         if (match(types: .BANG, .MINUS)) {
             var operator_ = previous();
             var right = try unary();
@@ -117,7 +117,7 @@ class Parser {
         return try primary();
     }
     
-    func primary() throws -> Expr {
+    func primary() throws -> Declarations {
         if (match(types: .FALSE)) { return Literal(value: false) };
         if (match(types: .TRUE)) { return Literal(value: true) };
         if (match(types: .NIL)) { return Literal(value: nil) };
@@ -178,11 +178,33 @@ class Parser {
         }
     }
     
-    func parse() -> Expr? {
-        do {
-            return try expression();
-        } catch {
-            return nil;
+    func parse() -> [Declarations]? {
+        var statements: [Declarations] = []
+            while !isAtEnd() {
+           do {
+             statements.append(try statement())
+           } catch {
+               print("HANDLE THE ERROR")
+           }
         }
+        return statements
     }
+    
+    func statement() throws -> Declarations {
+        if match(types: .PRINT) { return try printStatement() };
+
+        return try expressionStatement();
+      }
+    
+    func printStatement() throws -> Declarations {
+        let value = try expression();
+        try consume(type: .SEMICOLON, message: "Expect ';' after value.");
+        return Print(expression: value);
+      }
+    
+    func expressionStatement() throws -> Declarations {
+        let expr = try expression();
+        try consume(type: .SEMICOLON, message: "Expect ';' after expression.");
+        return Expression(expression: expr);
+      }
 }
