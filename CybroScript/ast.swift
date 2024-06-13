@@ -46,7 +46,12 @@ struct GenerateAst {
         writer.writeLine("import Foundation")
         writer.writeLine()
         
-        writer.writeLine("protocol \(baseName) {}")
+        writer.writeLine("protocol \(baseName) {")
+        writer.writeLine("    func accept<V: Visitor>(_ visitor: V) -> Any?")
+        writer.writeLine("}")
+        writer.writeLine()
+        
+        defineVisitor(writer, baseName, types)
         writer.writeLine()
         
         for type in types {
@@ -79,14 +84,28 @@ struct GenerateAst {
                 print("Error: Field format is incorrect: \(field)")
                 exit(1)
             }
-            let name = nameParts[1]
-            writer.writeLine("        self.\(name) = \(name)")
+            writer.writeLine("        self.\(nameParts[0]) = \(nameParts[0])")
         }
+        writer.writeLine("    }")
+        writer.writeLine()
+        
+        writer.writeLine("    func accept<V: Visitor>(_ visitor: V) -> Any? {")
+        writer.writeLine("        return visitor.visit\(className)(self)")
         writer.writeLine("    }")
         writer.writeLine("}")
         writer.writeLine()
     }
+
+    func defineVisitor(_ writer: FileWriter, _ baseName: String, _ types: [String]) {
+        writer.writeLine("protocol Visitor {")
+        for type in types {
+            let typeName = type.split(separator: ":").first!.trimmingCharacters(in: .whitespaces)
+            writer.writeLine("    func visit\(typeName)(_ \(baseName.lowercased()): \(typeName)) -> Any?")
+        }
+        writer.writeLine("}")
+    }
 }
 
-GenerateAst().run()
-
+func runGenerator() {
+    GenerateAst().run()
+}

@@ -1,14 +1,25 @@
+//
+//  main.swift
+//  CybroScript
+//
+//  Created by Simon Ferns on 2024/06/13.
+//
+
+import Foundation
+
+print("Hello, World!")
+
 import Foundation
 
 // https://craftinginterpreters.com/scanning.html#reserved-words-and-identifiers
-// Almost at the bottom of the page 
+// Almost at the bottom of the page
 
 enum TokenType {
     case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
     case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
     case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL
     case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, EOF
-    case NUMBER, STRING, IDENTIFIER 
+    case NUMBER, STRING, IDENTIFIER
 }
 
 let keywords: [String: TokenType] = [
@@ -128,7 +139,7 @@ class Scanner {
                 // Ignore whitespace
             } else if char == "\n" {
                 line += 1
-            } 
+            }
             else if isAlpha(char) {
                 identifier()
             } else {
@@ -298,6 +309,19 @@ class Cybro {
 }
 
 // Run the Cybro shell
-let val = Cybro()
-val.run()
+enum RunType {
+    case AST
+    case AST_PRINT
+    case SCRIPT
+}
 
+let runType: RunType = .SCRIPT
+
+switch runType {
+    case .AST:
+        runGenerator()
+    case .AST_PRINT:
+        runPrinter()
+    case .SCRIPT:
+        Cybro().run()
+}
