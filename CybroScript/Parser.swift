@@ -39,7 +39,7 @@ class Parser {
     func comparison() throws -> Expr {
         var expr = try term();
         
-        while (match(types: .GREATER, .GREATER_EQUAL, .LESS, .LESS_EQUAL)) {
+        while (match(types: .GREATER, .GREATER_EQUAL, .LESS, .LESS_EQUAL, .MIN, .MAX)) {
             var operator_ = previous();
             var right = try term();
             expr = Binary(left: expr, operator_: operator_, right: right)

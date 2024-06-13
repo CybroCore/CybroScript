@@ -76,6 +76,22 @@ struct Interpreter_: Visitor {
                 if let value = right as? Double, let value2 = left as? Double {
                     return value2 * value;
                 }
+            case .MIN:
+                if let value = right as? Double, let value2 = left as? Double {
+                    if value2 > value {
+                        return value
+                    } else if value >= value2 {
+                        return value2
+                    }
+                }
+            case .MAX:
+                if let value = right as? Double, let value2 = left as? Double {
+                    if value2 > value {
+                        return value2
+                    } else if value >= value2 {
+                        return value
+                    }
+                }
             case .PLUS:
                 if let value2 = right as? Double, let value1 = left as? Double {
                     return value1 + value2
@@ -125,7 +141,7 @@ struct Interpreter_: Visitor {
 enum TokenType {
     case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
     case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
-    case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL
+    case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MIN, MAX
     case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, EOF
     case NUMBER, STRING, IDENTIFIER
 }
@@ -207,6 +223,13 @@ class Scanner {
         case "+": addToken(.PLUS)
         case ";": addToken(.SEMICOLON)
         case "*": addToken(.STAR)
+        case "~":
+            if match(expected: "~") && peek() == " " {
+                addToken(.MAX)
+            } else {
+                addToken(.MIN)
+            }
+            
         case "!":
             addToken(match(expected: "=") ? .BANG_EQUAL : .BANG)
         case "=":
