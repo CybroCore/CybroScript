@@ -7,7 +7,7 @@
 
 import Foundation
 
-// https://craftinginterpreters.com/parsing-expressions.html#the-parser-class
+// https://craftinginterpreters.com/evaluating-expressions.html#running-the-interpreter
 
 struct Interpreter_: Visitor {
     typealias ReturnType = Any?
