@@ -97,7 +97,20 @@ class Scanner {
         case ">":
             addToken(match(expected: "=") ? .GREATER_EQUAL : .GREATER)
         case "/":
-            if match(expected: "/") {
+            if match(expected: "*") {
+                // Search for the next */
+                // It can be on the same line or on a new line
+                while !isAtEnd() {
+                    if peek() == "*" && peekNext() == "/" {
+                        advance()
+                        advance()
+                        break
+                    } else if peek() == "\n" {
+                        line += 1
+                    }
+                    advance()
+                }
+            } else if match(expected: "/") {
                 while peek() != "\n" && !isAtEnd() { advance() }
             } else {
                 addToken(.SLASH)
@@ -122,6 +135,10 @@ class Scanner {
                 Cybro().error(line: self.line, message: "Unexpected character \(c)")
             }
         }
+    }
+
+    func isAlphaNumeric(_ c: Character) -> Bool {
+        return isAlpha(c) || isDigit(String(c))
     }
 
     func isAlpha(_ c: Character) -> Bool {
