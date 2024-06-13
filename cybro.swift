@@ -3,22 +3,6 @@ import Foundation
 // https://craftinginterpreters.com/scanning.html#reserved-words-and-identifiers
 // Almost at the bottom of the page 
 
-protocol Expression {
-
-}
-
-class Binary: Expression {
-    let left: Expression
-    let right: Expression
-    let operator_: Token
-
-    init(left: Expression, operator_: Token, right: Expression) {
-        self.left = left
-        self.operator_ = operator_
-        self.right = right 
-    }
-}
-
 enum TokenType {
     case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
     case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
