@@ -16,7 +16,7 @@ struct AstPrinter {
         }
         return ""
     }
-    
+
     static func parenthesize(_ name: String, _ exprs: Expr...) -> String {
         var result = "(" + name
         for expr in exprs {
@@ -28,14 +28,14 @@ struct AstPrinter {
 }
 
 func runPrinter() {
-        print(AstPrinter.print(Binary(
-            left: Unary(
-                operator_: Token(type: .MINUS, lexeme: "-", literal: nil, line: 1),
-                right: Literal(value: 123)
-            ),
-            operator_: Token(type: .STAR, lexeme: "*", literal: nil, line: 1),
-            right: Grouping(expression: Literal(value: 45.67))
-        )
+    print(AstPrinter.print(Binary(
+        left: Unary(
+            operator_: Token(type: .MINUS, lexeme: "-", literal: nil, line: 1),
+            right: Literal(value: 123)
+        ),
+        operator_: Token(type: .STAR, lexeme: "*", literal: nil, line: 1),
+        right: Grouping(expression: Literal(value: 45.67))
     )
-              )
+    )
+    )
 }

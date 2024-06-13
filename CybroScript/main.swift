@@ -7,12 +7,7 @@
 
 import Foundation
 
-print("Hello, World!")
-
-import Foundation
-
-// https://craftinginterpreters.com/scanning.html#reserved-words-and-identifiers
-// Almost at the bottom of the page
+// https://craftinginterpreters.com/parsing-expressions.html#the-parser-class
 
 enum TokenType {
     case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
@@ -143,7 +138,7 @@ class Scanner {
             else if isAlpha(char) {
                 identifier()
             } else {
-                Cybro().error(line: self.line, message: "Unexpected character \(c)")
+                Cybro.error(line: self.line, message: "Unexpected character \(c)")
             }
         }
     }
@@ -198,7 +193,7 @@ class Scanner {
         }
 
         if isAtEnd() {
-            Cybro().error(line: self.line, message: "Unterminated string.")
+            Cybro.error(line: self.line, message: "Unterminated string.")
             return
         }
 
@@ -293,29 +288,44 @@ class Cybro {
     func run(scriptContent: String) {
         let scanner = Scanner(source: scriptContent)
         let tokens = scanner.scanTokens()
-
-        for token in tokens {
-            print(token.toString())
+        let parser = Parser(tokens: tokens)
+        let expression = parser.parse()
+        
+        if hadError {
+            return
         }
+        
+        guard let expression = expression else { return }
+            print(AstPrinter.print(expression))
     }
 
-    func error(line: Int, message: String) {
+    static func error(line: Int, message: String) {
         report(line: line, where_: "", message: message)
     }
 
-    func report(line: Int, where_: String, message: String) {
+    static func report(line: Int, where_: String, message: String) {
         print("[line \(line)] \(where_): error: \(message)")
+    }
+    
+    static func error(token: Token , message: String ) {
+      if (token.type == .EOF) {
+          report(line: token.line, where_: " at end", message: message);
+      } else {
+          report(line: token.line, where_: " at '" + token.lexeme + "'", message: message);
+      }
     }
 }
 
-// Run the Cybro shell
+
 enum RunType {
     case AST
     case AST_PRINT
     case SCRIPT
 }
 
+
 let runType: RunType = .SCRIPT
+
 
 switch runType {
     case .AST:

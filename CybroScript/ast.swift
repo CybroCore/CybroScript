@@ -14,6 +14,7 @@ class FileWriter {
     
     func close() {
         do {
+            print(path)
             try content.write(toFile: path, atomically: true, encoding: .utf8)
         } catch {
             print("Failed to write to file \(path)")
@@ -35,7 +36,8 @@ struct GenerateAst {
             "Binary   : left: Expr, operator_: Token, right: Expr",
             "Grouping : expression: Expr",
             "Literal  : value: Any?",
-            "Unary    : operator_: Token, right: Expr"
+            "Unary    : operator_: Token, right: Expr",
+            "Ternary  : value1: Any?, op1: Token, value2: Any, op2: Token, value3: Any?"
         ])
     }
 
