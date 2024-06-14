@@ -7,7 +7,7 @@
 
 import Foundation
 
-// https://craftinginterpreters.com/statements-and-state.html#assignment-syntax
+// https://craftinginterpreters.com/statements-and-state.html#nesting-and-shadowing
 struct Environment {
     var storage: [String : Any?] = [:]
     
