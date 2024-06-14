@@ -25,7 +25,7 @@ class Parser {
     }
     
     func assignment() throws -> Declarations {
-        let expr = try equality()
+        let expr = try or()
         
         if match(types: .EQUAL) {
             let equals = previous()
@@ -37,6 +37,30 @@ class Parser {
             }
             
             throw error(token: equals, message: "Invalid assignment target.")
+        }
+        
+        return expr
+    }
+    
+    func or() throws -> Declarations {
+        var expr = try and()
+        
+        while match(types: .OR) {
+            let operator_ = previous()
+            let right = try and()
+            expr = Logical(left: expr, operator_: operator_, right: right)
+        }
+        
+        return expr
+    }
+    
+    func and() throws -> Declarations {
+        var expr = try equality()
+        
+        while match(types: .AND) {
+            let operator_ = previous()
+            let right = try equality()
+            expr = Logical(left: expr, operator_: operator_, right: right)
         }
         
         return expr

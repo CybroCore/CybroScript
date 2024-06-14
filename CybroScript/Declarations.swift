@@ -18,6 +18,7 @@ protocol Visitor {
     func visitVariable(_ declarations: Variable) -> Any?
     func visitIf(_ declarations: If) -> Any?
     func visitAssign(_ declarations: Assign) -> Any?
+    func visitLogical(_ declarations: Logical) -> Any?
 }
 
 class Binary: Declarations {
@@ -197,6 +198,22 @@ class Assign: Declarations {
 
     func accept<V: Visitor>(_ visitor: V) -> Any? {
         return visitor.visitAssign(self)
+    }
+}
+
+class Logical: Declarations {
+    let left: Declarations
+    let operator_: Token
+    let right: Declarations
+
+    init(left: Declarations, operator_: Token, right: Declarations) {
+        self.left = left
+        self.operator_ = operator_
+        self.right = right
+    }
+
+    func accept<V: Visitor>(_ visitor: V) -> Any? {
+        return visitor.visitLogical(self)
     }
 }
 

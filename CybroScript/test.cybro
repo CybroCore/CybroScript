@@ -1,8 +1,1 @@
-var a = 1;
 
-if (a == 2) {
-  var a = a + 2;
-  print a;
-} else {
- print a + 1;
-}

@@ -69,7 +69,9 @@ class Environment {
 }
 
 class Interpreter_: Visitor {
-   
+    
+    
+    
     var environemnt = Environment()
     
     init(environemnt: Environment = Environment()) {
@@ -85,6 +87,17 @@ class Interpreter_: Visitor {
         return nil
     }
     
+    func visitLogical(_ declarations: Logical) -> Any? {
+        let left = evaluate(expr: declarations.left);
+        
+        if declarations.operator_.type == .OR {
+            if (isTruthy(left)) { return left };
+        } else {
+            if (!isTruthy(left)) { return left };
+        }
+        
+        return evaluate(expr: declarations.right);
+     }
     
     func visitBlock(_ stmt: Block) -> Any? {
         executeBlock(stmt.statements, Environment(enclosing: environemnt));
@@ -137,7 +150,7 @@ class Interpreter_: Visitor {
     
     func visitPrint(_ declarations: Print) -> Any? {
         let value = evaluate(expr: declarations.expression)
-        var out = "\(value!)".replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "")
+        var out = "\(value ?? "nil" )".replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "")
         out = "\(out)".replacingOccurrences(of: "Optional(", with: "").replacingOccurrences(of: ")", with: "")
         print(out)
         return ""
@@ -281,13 +294,18 @@ class Interpreter_: Visitor {
             return true
         }
         
+        if ["false", "False", "FALSE"].contains("\(value)") {
+            return false
+        }
+        
         if let number = value as? Double {
             if number != 0 {
                 return true
             }
         }
         
-        return false
+        return true
+        
     }
     
     func interpret(statements: [Declarations]) {
