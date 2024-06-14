@@ -7,7 +7,7 @@
 
 import Foundation
 
-// https://craftinginterpreters.com/statements-and-state.html#nesting-and-shadowing
+// https://craftinginterpreters.com/control-flow.html#while-loops
 // Close to the end.
 
 class Environment {
