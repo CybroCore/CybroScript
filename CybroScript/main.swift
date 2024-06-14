@@ -8,7 +8,8 @@
 import Foundation
 
 // https://craftinginterpreters.com/control-flow.html#while-loops
-// Close to the end.
+// At the end. Need to implement break statements for while loops (Forloops are already while loops, and a runtime error should be thrown if a break isn't encapsulated in a forloop.
+// We would like to have a break statement get an argument like break name, where we assign the name inside the while loops (condition, name) or for (..., name)
 
 class Environment {
     var enclosing: Environment?
@@ -75,6 +76,11 @@ class Interpreter_: Visitor {
         self.environemnt = environemnt
     }
     
+    func visitBreak(_ declarations: Break) -> Any? {
+        let level = declarations.level - 1
+        return Break(level: level)
+    }
+    
     func visitIf(_ declarations: If) -> Any? {
         if isTruthy(evaluate(expr: declarations.condition)) {
             return execute(stmt: declarations.thenBranch)
@@ -86,7 +92,10 @@ class Interpreter_: Visitor {
     
     func visitWhile(_ declarations: While) -> Any? {
         while isTruthy(evaluate(expr: declarations.condition)) {
-            execute(stmt: declarations.body)
+            let value: Any? = execute(stmt: declarations.body)
+            if let value = value as? Break {
+                return Break(level: -1)
+            }
         }
         return nil
     }
@@ -104,20 +113,23 @@ class Interpreter_: Visitor {
      }
     
     func visitBlock(_ stmt: Block) -> Any? {
-        executeBlock(stmt.statements, Environment(enclosing: environemnt));
-        return nil
+        return executeBlock(stmt.statements, Environment(enclosing: environemnt));
     }
       
-     func executeBlock(_ statements: [Declarations], _ environemnt: Environment) {
+     func executeBlock(_ statements: [Declarations], _ environemnt: Environment) -> Any? {
          let previous = self.environemnt
          do {
              self.environemnt = environemnt
              
              for statement in statements {
-                 execute(stmt: statement)
+                 let result = execute(stmt: statement)
+                 if let result = result as? Break {
+                    return result
+                 }
              }
          }
          self.environemnt = previous
+         return nil
     }
     
      func visitAssign(_ declarations: Assign) -> Any? {
@@ -315,22 +327,27 @@ class Interpreter_: Visitor {
     func interpret(statements: [Declarations]) {
         do {
               for statement in statements {
-                  try execute(stmt: statement);
+                  let value = try execute(stmt: statement);
+                  if let value = value as? Break {
+                      if value.level > -1 {
+                          print("You can't execute a break statement outside of a 'For', 'While' or 'Switch' statement / block.")
+                      }
+                  }
               }
             } catch {
                 print("Errors")
             }
       }
     
-    func execute(stmt: Declarations) {
-        stmt.accept(self);
+    func execute(stmt: Declarations) -> Any? {
+        return stmt.accept(self);
       }
 }
 
 enum TokenType {
     case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
     case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
-    case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MIN, MAX
+    case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MIN, MAX, BREAK
     case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, LET, WHILE, EOF
     case NUMBER, STRING, IDENTIFIER
 }
@@ -352,7 +369,8 @@ let keywords: [String: TokenType] = [
     "true": .TRUE,
     "var": .VAR,
     "let": .LET,
-    "while": .WHILE
+    "while": .WHILE,
+    "break": .BREAK
 ]
 
 class Token {

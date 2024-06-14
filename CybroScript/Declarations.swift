@@ -20,6 +20,7 @@ protocol Visitor {
     func visitAssign(_ declarations: Assign) -> Any?
     func visitLogical(_ declarations: Logical) -> Any?
     func visitWhile(_ declarations: While) -> Any?
+    func visitBreak(_ declarations: Break) -> Any?
 }
 
 class Binary: Declarations {
@@ -229,6 +230,18 @@ class While: Declarations {
 
     func accept<V: Visitor>(_ visitor: V) -> Any? {
         return visitor.visitWhile(self)
+    }
+}
+
+class Break: Declarations {
+    let level: Int
+
+    init(level: Int) {
+        self.level = level
+    }
+
+    func accept<V: Visitor>(_ visitor: V) -> Any? {
+        return visitor.visitBreak(self)
     }
 }
 
