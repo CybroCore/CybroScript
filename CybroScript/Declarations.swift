@@ -13,7 +13,9 @@ protocol Visitor {
     func visitExpression(_ declarations: Expression) -> Any?
     func visitPrint(_ declarations: Print) -> Any?
     func visitVar(_ declarations: Var) -> Any?
+    func visitLet(_ declarations: Let) -> Any?
     func visitVariable(_ declarations: Variable) -> Any?
+    func visitAssign(_ declarations: Assign) -> Any?
 }
 
 class Binary: Declarations {
@@ -128,6 +130,20 @@ class Var: Declarations {
     }
 }
 
+class Let: Declarations {
+    let name: Token
+    let intializer: Declarations
+
+    init(name: Token, intializer: Declarations) {
+        self.name = name
+        self.intializer = intializer
+    }
+
+    func accept<V: Visitor>(_ visitor: V) -> Any? {
+        return visitor.visitLet(self)
+    }
+}
+
 class Variable: Declarations {
     let name: Token
 
@@ -139,4 +155,19 @@ class Variable: Declarations {
         return visitor.visitVariable(self)
     }
 }
+
+class Assign: Declarations {
+    let name: Token
+    let value: Declarations
+
+    init(name: Token, value: Declarations) {
+        self.name = name
+        self.value = value
+    }
+
+    func accept<V: Visitor>(_ visitor: V) -> Any? {
+        return visitor.visitAssign(self)
+    }
+}
+
 

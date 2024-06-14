@@ -1,1 +1,8 @@
 print 1.2;
+print "HI";
+var a = "Banana";
+a = "HI";
+print a;
+print a = 3;
+let b = 1;
+print(b);

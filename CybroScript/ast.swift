@@ -41,7 +41,9 @@ struct GenerateAst {
             "Expression : expression: Declarations",
             "Print      : expression: Declarations",
             "Var        : name: Token, initializer: Declarations",
-            "Variable : name: Token"
+            "Let        : name: Token, intializer: Declarations",
+            "Variable : name: Token",
+            "Assign   : name: Token, value: Declarations",
             ]);
     }
 

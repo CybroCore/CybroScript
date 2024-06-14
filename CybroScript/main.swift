@@ -9,27 +9,69 @@ import Foundation
 
 // https://craftinginterpreters.com/statements-and-state.html#assignment-syntax
 struct Environment {
-    var storage: [String : Any] = [:]
+    var storage: [String : Any?] = [:]
     
     mutating func define(name: String, value: Any?) {
+        if storage.keys.contains("let-\(name)") {
+            print("RAISE ERROR, NOT ALLOWED TO HAVE 2 VARIABLES WITH SAME NAME")
+            return
+        }
+        
         storage[name] = value
+    }
+    
+    mutating func defineLet(name: String, value: Any?) {
+        if storage.keys.contains(name) {
+            print("RAISE ERROR, NOT ALLOWED TO HAVE 2 VARIABLES WITH SAME NAME")
+            return
+        }
+        storage["let-\(name)"] = value
     }
     
     func get(name: Token) -> Any? {
         if storage.keys.contains(name.lexeme) {
             return storage[name.lexeme]
+        } else if storage.keys.contains("let-\(name.lexeme)") {
+            return storage["let-\(name.lexeme)"]
         }
         
         print("IMPLEMENT THROW RUNTIME ERROR")
         return ""
     }
+    
+    mutating func assign(_ name: Token, _ value: Any) {
+        if storage.keys.contains(name.lexeme) {
+          storage[name.lexeme] = value;
+          return;
+        } else if storage.keys.contains("let-\(name.lexeme)") {
+            print("THROW CAN'T ASSIGN TO CONSTANT")
+        }
+        
+        print("IMPLEMENT THROW RUNTIME ERROR")
+      }
 }
 
 class Interpreter_: Visitor {
+    
+    
+   
     var environemnt = Environment()
     
     init(environemnt: Environment = Environment()) {
         self.environemnt = environemnt
+    }
+    
+     func visitAssign(_ declarations: Assign) -> Any? {
+        var value = evaluate(expr: declarations.value)
+        environemnt.assign(declarations.name, value!)
+        return value
+    }
+    
+    func visitLet(_ declarations: Let) -> Any? {
+        var value = evaluate(expr: declarations.intializer)
+        
+        environemnt.defineLet(name: declarations.name.lexeme, value: value)
+        return nil
     }
     
     func visitVar(_ declarations: Var) -> Any? {
@@ -53,8 +95,9 @@ class Interpreter_: Visitor {
     
     func visitPrint(_ declarations: Print) -> Any? {
         let value = evaluate(expr: declarations.expression)
-        guard let value = value else { return nil }
-        print("\(value)")
+        var out = "\(value!)".replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "")
+        out = "\(out)".replacingOccurrences(of: "Optional(", with: "").replacingOccurrences(of: ")", with: "")
+        print(out)
         return ""
     }
     
@@ -199,7 +242,7 @@ enum TokenType {
     case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
     case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
     case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MIN, MAX
-    case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, EOF
+    case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, LET, WHILE, EOF
     case NUMBER, STRING, IDENTIFIER
 }
 
@@ -219,6 +262,7 @@ let keywords: [String: TokenType] = [
     "this": .THIS,
     "true": .TRUE,
     "var": .VAR,
+    "let": .LET,
     "while": .WHILE
 ]
 

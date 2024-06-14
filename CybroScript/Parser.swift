@@ -21,7 +21,25 @@ class Parser {
     }
     
     func expression() throws -> Declarations {
-        return try equality()
+        return try assignment()
+    }
+    
+    func assignment() throws -> Declarations {
+        let expr = try equality()
+        
+        if match(types: .EQUAL) {
+            let equals = previous()
+            let value = try assignment()
+            
+            if let expr = expr as? Variable {
+                let name = expr.name
+                return Assign(name: name, value: value)
+            }
+            
+            throw error(token: equals, message: "Invalid assignment target.")
+        }
+        
+        return expr
     }
     
     func equality() throws -> Declarations {
@@ -201,6 +219,7 @@ class Parser {
     func declaration() -> Declarations? {
         do {
             if (match(types: .VAR)) { return try varDeclaration() };
+            if (match(types: .LET)) { return try letDeclaration() }
 
           return try statement();
         } catch {
@@ -219,6 +238,18 @@ class Parser {
 
         try consume(type: .SEMICOLON, message: "Expect ';' after variable declaration.")
         return Var(name: name, initializer: initializer!);
+      }
+    
+    func letDeclaration() throws -> Declarations {
+        let name = try consume(type: .IDENTIFIER, message: "Expect variable name.")
+
+        var initializer: Declarations? = nil;
+        if (match(types: .EQUAL)) {
+          initializer = try expression();
+        }
+
+        try consume(type: .SEMICOLON, message: "Expect ';' after variable declaration.")
+        return Let(name: name, intializer: initializer!);
       }
     
     func statement() throws -> Declarations {
