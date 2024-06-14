@@ -253,17 +253,34 @@ class Parser {
       }
     
     func statement() throws -> Declarations {
+        if match(types: .IF) { return try ifStatement() }
         if match(types: .PRINT) { return try printStatement() };
         if match(types: .LEFT_BRACE) { return try Block(statements: block())}
 
         return try expressionStatement();
       }
     
+    func ifStatement() throws -> Declarations {
+        try consume(type: .LEFT_PAREN, message: "Expect '(' after if condition")
+        let condition = try expression();
+        try consume(type: .RIGHT_PAREN, message: "Expect ')' after if condition.");
+
+        let thenBranch = try statement();
+        var elseBranch: Declarations? = nil;
+        if (match(types: .ELSE)) {
+          elseBranch = try statement();
+        }
+        
+        return If(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch)
+      }
+    
     func block() throws -> [Declarations] {
         var statements: [Declarations] = [];
 
         while !check(type: .RIGHT_BRACE) && !isAtEnd() {
-            statements.append(declaration()!)
+            if let decl = declaration() {
+                statements.append(decl)
+            }
         }
 
         try consume(type: .RIGHT_BRACE, message: "Expected '}' after block.");
@@ -281,4 +298,5 @@ class Parser {
         try consume(type: .SEMICOLON, message: "Expect ';' after expression.");
         return Expression(expression: expr);
       }
+    
 }

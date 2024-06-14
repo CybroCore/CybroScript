@@ -8,6 +8,8 @@
 import Foundation
 
 // https://craftinginterpreters.com/statements-and-state.html#nesting-and-shadowing
+// Close to the end.
+
 class Environment {
     var enclosing: Environment?
     var storage: [String : Any?] = [:]
@@ -67,11 +69,23 @@ class Environment {
 }
 
 class Interpreter_: Visitor {
+   
     var environemnt = Environment()
     
     init(environemnt: Environment = Environment()) {
         self.environemnt = environemnt
     }
+    
+    func visitIf(_ declarations: If) -> Any? {
+        if isTruthy(evaluate(expr: declarations.condition)) {
+            return execute(stmt: declarations.thenBranch)
+        } else if let elseBranch = declarations.elseBranch {
+            return execute(stmt: elseBranch)
+        }
+        return nil
+    }
+    
+    
     func visitBlock(_ stmt: Block) -> Any? {
         executeBlock(stmt.statements, Environment(enclosing: environemnt));
         return nil
@@ -240,7 +254,7 @@ class Interpreter_: Visitor {
                 if left == nil {
                     return false
                 }
-                if "\(left ?? "nil")" == "\(right ?? "nil")" {
+                if "\(left ?? "nil")".replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "").replacingOccurrences(of: "Optional(", with: "").replacingOccurrences(of: ")", with: "") == "\(right ?? "nil")".replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "").replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "") {
                     return true
                 }
                 
@@ -250,6 +264,31 @@ class Interpreter_: Visitor {
 
         return nil;
 }
+    
+    func isTruthy(_ value: Any?) -> Bool {
+        if value == nil {
+            return false
+        }
+        
+        if let bool = value as? Bool {
+            if bool {
+                return true
+            }
+            return false
+        }
+        
+        if ["true", "True", "TRUE"].contains("\(value)") {
+            return true
+        }
+        
+        if let number = value as? Double {
+            if number != 0 {
+                return true
+            }
+        }
+        
+        return false
+    }
     
     func interpret(statements: [Declarations]) {
         do {

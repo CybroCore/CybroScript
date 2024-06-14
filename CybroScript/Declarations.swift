@@ -1,4 +1,3 @@
-
 import Foundation
 
 protocol Declarations {
@@ -17,6 +16,7 @@ protocol Visitor {
     func visitVar(_ declarations: Var) -> Any?
     func visitLet(_ declarations: Let) -> Any?
     func visitVariable(_ declarations: Variable) -> Any?
+    func visitIf(_ declarations: If) -> Any?
     func visitAssign(_ declarations: Assign) -> Any?
 }
 
@@ -167,6 +167,22 @@ class Variable: Declarations {
 
     func accept<V: Visitor>(_ visitor: V) -> Any? {
         return visitor.visitVariable(self)
+    }
+}
+
+class If: Declarations {
+    let condition: Declarations
+    let thenBranch: Declarations
+    let elseBranch: Declarations?
+
+    init(condition: Declarations, thenBranch: Declarations, elseBranch: Declarations?) {
+        self.condition = condition
+        self.thenBranch = thenBranch
+        self.elseBranch = elseBranch
+    }
+
+    func accept<V: Visitor>(_ visitor: V) -> Any? {
+        return visitor.visitIf(self)
     }
 }
 
