@@ -254,8 +254,8 @@
             filePath = "CybroScript/Parser.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "333"
-            endingLineNumber = "333"
+            startingLineNumber = "382"
+            endingLineNumber = "382"
             landmarkName = "expressionStatement()"
             landmarkType = "7">
          </BreakpointContent>
@@ -450,36 +450,6 @@
             endingLineNumber = "260"
             landmarkName = "visitBinary(_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "407EE0C7-FA1C-449F-9B63-8DB0023CC858 - dc7fa4556372daed"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CybroScript.Interpreter_.visitBinary(CybroScript.Binary) -&gt; Swift.Optional&lt;Any&gt;"
-                  moduleName = "CybroScript"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/simonferns/Programming/CybroScript/CybroScript/main.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "260"
-                  endingLineNumber = "260">
-               </Location>
-               <Location
-                  uuid = "407EE0C7-FA1C-449F-9B63-8DB0023CC858 - dc7fa4556372daed"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CybroScript.Interpreter_.visitBinary(CybroScript.Binary) -&gt; Swift.Optional&lt;Any&gt;"
-                  moduleName = "CybroScript"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/simonferns/Programming/CybroScript/CybroScript/main.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "260"
-                  endingLineNumber = "260">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -496,36 +466,6 @@
             endingLineNumber = "259"
             landmarkName = "visitBinary(_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "83863396-2ED1-4EBC-95D9-DB4EC7220D58 - dc7fa4556372daed"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CybroScript.Interpreter_.visitBinary(CybroScript.Binary) -&gt; Swift.Optional&lt;Any&gt;"
-                  moduleName = "CybroScript"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/simonferns/Programming/CybroScript/CybroScript/main.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "260"
-                  endingLineNumber = "260">
-               </Location>
-               <Location
-                  uuid = "83863396-2ED1-4EBC-95D9-DB4EC7220D58 - dc7fa4556372daed"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CybroScript.Interpreter_.visitBinary(CybroScript.Binary) -&gt; Swift.Optional&lt;Any&gt;"
-                  moduleName = "CybroScript"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/simonferns/Programming/CybroScript/CybroScript/main.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "260"
-                  endingLineNumber = "260">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -542,36 +482,6 @@
             endingLineNumber = "251"
             landmarkName = "visitBinary(_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "72A2A8EF-B96F-4AFD-9C08-65B722B61160 - dc7fa4556372dbe5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CybroScript.Interpreter_.visitBinary(CybroScript.Binary) -&gt; Swift.Optional&lt;Any&gt;"
-                  moduleName = "CybroScript"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/simonferns/Programming/CybroScript/CybroScript/main.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "252"
-                  endingLineNumber = "252">
-               </Location>
-               <Location
-                  uuid = "72A2A8EF-B96F-4AFD-9C08-65B722B61160 - dc7fa4556372dbe5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CybroScript.Interpreter_.visitBinary(CybroScript.Binary) -&gt; Swift.Optional&lt;Any&gt;"
-                  moduleName = "CybroScript"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/simonferns/Programming/CybroScript/CybroScript/main.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "252"
-                  endingLineNumber = "252">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

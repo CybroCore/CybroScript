@@ -277,6 +277,7 @@ class Parser {
       }
     
     func statement() throws -> Declarations {
+        if match(types: .FOR) { return try forStatement() }
         if match(types: .IF) { return try ifStatement() }
         if match(types: .PRINT) { return try printStatement() };
         if match(types: .WHILE) { return try whileStatement() };
@@ -284,6 +285,54 @@ class Parser {
 
         return try expressionStatement();
       }
+    
+    func forStatement() throws -> Declarations {
+        try consume(type: .LEFT_PAREN, message: "Expect '(' after for condition")
+        
+        var intializer: Declarations? = nil
+        if match(types: .SEMICOLON) {
+            intializer = nil
+        } else if match(types: .VAR) {
+            intializer = try varDeclaration()
+        } else {
+            intializer = try expressionStatement();
+        }
+        
+        var condition: Declarations? = nil
+        if (!check(type: .SEMICOLON)) {
+            condition = try expression()
+        }
+        try consume(type: .SEMICOLON, message: "Expect ';' after loop condition.")
+            
+        var increment: Declarations? = nil
+        if (!check(type: .RIGHT_PAREN)) {
+            increment = try expression()
+        }
+        try consume(type: .RIGHT_PAREN, message: "Expect ')' after for clauses.")
+        
+        var body = try statement()
+        
+        if let increment = increment {
+            body = Block(statements: [
+                body,
+                Expression(expression: increment)
+            ])
+        }
+        
+        if condition == nil {
+            condition = Literal(value: true)
+        }
+        body = While(condition: condition!, body: body)
+        
+        if let intializer = intializer {
+            body = Block(statements: [
+                intializer,
+                body
+            ])
+        }
+        
+        return body
+    }
     
     func whileStatement() throws -> Declarations {
         try consume(type: .LEFT_PAREN, message: "Expect '(' after if condition")
