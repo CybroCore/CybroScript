@@ -38,6 +38,7 @@ struct GenerateAst {
             "Literal  : value: Any?",
             "Unary    : operator_: Token, right: Declarations",
             "Ternary  : value1: Any?, op1: Token, value2: Any, op2: Token, value3: Any?",
+            "Block      : statements: [Declarations]",
             "Expression : expression: Declarations",
             "Print      : expression: Declarations",
             "Var        : name: Token, initializer: Declarations",

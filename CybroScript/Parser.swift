@@ -254,9 +254,21 @@ class Parser {
     
     func statement() throws -> Declarations {
         if match(types: .PRINT) { return try printStatement() };
+        if match(types: .LEFT_BRACE) { return try Block(statements: block())}
 
         return try expressionStatement();
       }
+    
+    func block() throws -> [Declarations] {
+        var statements: [Declarations] = [];
+
+        while !check(type: .RIGHT_BRACE) && !isAtEnd() {
+            statements.append(declaration()!)
+        }
+
+        try consume(type: .RIGHT_BRACE, message: "Expected '}' after block.");
+        return statements;
+    }
     
     func printStatement() throws -> Declarations {
         let value = try expression();

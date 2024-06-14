@@ -1,3 +1,4 @@
+
 import Foundation
 
 protocol Declarations {
@@ -10,6 +11,7 @@ protocol Visitor {
     func visitLiteral(_ declarations: Literal) -> Any?
     func visitUnary(_ declarations: Unary) -> Any?
     func visitTernary(_ declarations: Ternary) -> Any?
+    func visitBlock(_ declarations: Block) -> Any?
     func visitExpression(_ declarations: Expression) -> Any?
     func visitPrint(_ declarations: Print) -> Any?
     func visitVar(_ declarations: Var) -> Any?
@@ -92,6 +94,18 @@ class Ternary: Declarations {
     }
 }
 
+class Block: Declarations {
+    let statements: [Declarations]
+
+    init(statements: [Declarations]) {
+        self.statements = statements
+    }
+
+    func accept<V: Visitor>(_ visitor: V) -> Any? {
+        return visitor.visitBlock(self)
+    }
+}
+
 class Expression: Declarations {
     let expression: Declarations
 
@@ -169,5 +183,4 @@ class Assign: Declarations {
         return visitor.visitAssign(self)
     }
 }
-
 

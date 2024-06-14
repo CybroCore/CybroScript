@@ -8,10 +8,16 @@
 import Foundation
 
 // https://craftinginterpreters.com/statements-and-state.html#nesting-and-shadowing
-struct Environment {
+class Environment {
+    var enclosing: Environment?
     var storage: [String : Any?] = [:]
     
-    mutating func define(name: String, value: Any?) {
+    init(enclosing: Environment? = nil, storage: [String : Any?] = [:]) {
+        self.enclosing = enclosing
+        self.storage = storage
+    }
+    
+    func define(name: String, value: Any?) {
         if storage.keys.contains("let-\(name)") {
             print("RAISE ERROR, NOT ALLOWED TO HAVE 2 VARIABLES WITH SAME NAME")
             return
@@ -20,7 +26,7 @@ struct Environment {
         storage[name] = value
     }
     
-    mutating func defineLet(name: String, value: Any?) {
+    func defineLet(name: String, value: Any?) {
         if storage.keys.contains(name) {
             print("RAISE ERROR, NOT ALLOWED TO HAVE 2 VARIABLES WITH SAME NAME")
             return
@@ -35,11 +41,15 @@ struct Environment {
             return storage["let-\(name.lexeme)"]
         }
         
-        print("IMPLEMENT THROW RUNTIME ERROR")
+        if let enclosing = enclosing {
+            return enclosing.get(name: name)
+        }
+        
+        print("IMPLEMENT THROW RUNTIME ERROR \(name.lexeme)")
         return ""
     }
     
-    mutating func assign(_ name: Token, _ value: Any) {
+    func assign(_ name: Token, _ value: Any) {
         if storage.keys.contains(name.lexeme) {
           storage[name.lexeme] = value;
           return;
@@ -47,18 +57,36 @@ struct Environment {
             print("THROW CAN'T ASSIGN TO CONSTANT")
         }
         
+        if let enclosing = enclosing {
+          enclosing.assign(name, value);
+          return;
+        }
+        
         print("IMPLEMENT THROW RUNTIME ERROR")
       }
 }
 
 class Interpreter_: Visitor {
-    
-    
-   
     var environemnt = Environment()
     
     init(environemnt: Environment = Environment()) {
         self.environemnt = environemnt
+    }
+    func visitBlock(_ stmt: Block) -> Any? {
+        executeBlock(stmt.statements, Environment(enclosing: environemnt));
+        return nil
+    }
+      
+     func executeBlock(_ statements: [Declarations], _ environemnt: Environment) {
+         let previous = self.environemnt
+         do {
+             self.environemnt = environemnt
+             
+             for statement in statements {
+                 execute(stmt: statement)
+             }
+         }
+         self.environemnt = previous
     }
     
      func visitAssign(_ declarations: Assign) -> Any? {

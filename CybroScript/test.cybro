@@ -6,3 +6,15 @@ print a;
 print a = 3;
 let b = 1;
 print(b);
+
+{
+    print a;
+    let x = a;
+    
+    {
+        let x = 0;
+        print x;
+    }
+    
+    print x;
+}
