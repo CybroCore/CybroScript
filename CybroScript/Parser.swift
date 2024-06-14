@@ -279,10 +279,20 @@ class Parser {
     func statement() throws -> Declarations {
         if match(types: .IF) { return try ifStatement() }
         if match(types: .PRINT) { return try printStatement() };
+        if match(types: .WHILE) { return try whileStatement() };
         if match(types: .LEFT_BRACE) { return try Block(statements: block())}
 
         return try expressionStatement();
       }
+    
+    func whileStatement() throws -> Declarations {
+        try consume(type: .LEFT_PAREN, message: "Expect '(' after if condition")
+        let condition = try expression();
+        try consume(type: .RIGHT_PAREN, message: "Expect ')' after if condition.");
+        let body = try statement()
+        
+        return While(condition: condition, body: body)
+   }
     
     func ifStatement() throws -> Declarations {
         try consume(type: .LEFT_PAREN, message: "Expect '(' after if condition")

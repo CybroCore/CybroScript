@@ -46,7 +46,8 @@ struct GenerateAst {
             "Variable : name: Token",
             "If         : condition: Declarations, thenBranch: Declarations, elseBranch: Declarations?",
             "Assign   : name: Token, value: Declarations",
-            "Logical  : left: Declarations, operator_: Token, right: Declarations"
+            "Logical  : left: Declarations, operator_: Token, right: Declarations",
+            "While    : condition: Declarations, body: Declarations"
             ]);
     }
 
@@ -120,4 +121,3 @@ struct GenerateAst {
 func runGenerator() {
     GenerateAst().run()
 }
-

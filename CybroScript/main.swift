@@ -69,9 +69,6 @@ class Environment {
 }
 
 class Interpreter_: Visitor {
-    
-    
-    
     var environemnt = Environment()
     
     init(environemnt: Environment = Environment()) {
@@ -83,6 +80,13 @@ class Interpreter_: Visitor {
             return execute(stmt: declarations.thenBranch)
         } else if let elseBranch = declarations.elseBranch {
             return execute(stmt: elseBranch)
+        }
+        return nil
+    }
+    
+    func visitWhile(_ declarations: While) -> Any? {
+        while isTruthy(evaluate(expr: declarations.condition)) {
+            execute(stmt: declarations.body)
         }
         return nil
     }
