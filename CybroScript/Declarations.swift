@@ -21,6 +21,8 @@ protocol Visitor {
     func visitLogical(_ declarations: Logical) -> Any?
     func visitWhile(_ declarations: While) -> Any?
     func visitBreak(_ declarations: Break) -> Any?
+    func visitCall(_ declarations: Call) -> Any?
+    func visitFunctionDecl(_ declarations: FunctionDecl) -> Any?
 }
 
 class Binary: Declarations {
@@ -242,6 +244,38 @@ class Break: Declarations {
 
     func accept<V: Visitor>(_ visitor: V) -> Any? {
         return visitor.visitBreak(self)
+    }
+}
+
+class Call: Declarations {
+    let calee: Declarations
+    let paren: Token
+    let arguments: [Declarations]
+
+    init(calee: Declarations, paren: Token, arguments: [Declarations]) {
+        self.calee = calee
+        self.paren = paren
+        self.arguments = arguments
+    }
+
+    func accept<V: Visitor>(_ visitor: V) -> Any? {
+        return visitor.visitCall(self)
+    }
+}
+
+class FunctionDecl: Declarations {
+    let name: Token
+    let params: [Token]
+    let body: [Declarations]
+
+    init(name: Token, params: [Token], body: [Declarations]) {
+        self.name = name
+        self.params = params
+        self.body = body
+    }
+
+    func accept<V: Visitor>(_ visitor: V) -> Any? {
+        return visitor.visitFunctionDecl(self)
     }
 }
 

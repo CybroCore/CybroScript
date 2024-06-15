@@ -1,9 +1,9 @@
-var count = 0;
+var start = clock();
 
-for (var a = 0; a < 10; a = a + 1) {
-    print "A"+a;
-    print "After Break Test";
-    if (a == 1) {
-        break;
-    }
+for (var i = 0; i < 10000; i = i + 1) {
+    print i;
 }
+
+var end = clock();
+
+print end - start;

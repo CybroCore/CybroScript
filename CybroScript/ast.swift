@@ -48,7 +48,9 @@ struct GenerateAst {
             "Assign   : name: Token, value: Declarations",
             "Logical  : left: Declarations, operator_: Token, right: Declarations",
             "While    : condition: Declarations, body: Declarations",
-            "Break    : level: Int"
+            "Break    : level: Int",
+            "Call     : calee: Declarations, paren: Token, arguments: [Declarations]",
+            "FunctionDecl: name: Token, params: [Token], body: [Declarations]"
             ]);
     }
 
@@ -123,3 +125,4 @@ func runGenerator() {
     GenerateAst().run()
 }
 
+runGenerator()

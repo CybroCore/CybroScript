@@ -155,9 +155,38 @@ class Parser {
             var right = try unary();
             return Unary(operator_: operator_, right: right)
         }
-        
-        return try primary();
+            
+        return try call()
     }
+    
+    
+    func call() throws -> Declarations {
+        var expr = try primary();
+
+        while true {
+            if match(types: .LEFT_PAREN) {
+            expr = try finishCall(expr);
+          } else {
+            break;
+          }
+        }
+
+        return expr;
+      }
+    
+    func finishCall(_ callee: Declarations) throws -> Declarations {
+        var arguments: [Declarations] = []
+        if !check(type: .RIGHT_PAREN) {
+          while match(types: .COMMA) {
+              if arguments.count >= 255 {
+                  try error(token: peek(), message: "Can't have more than 255 arguments!")
+              }
+            arguments.append(try expression());
+          }
+        }
+        let paren = try consume(type: .RIGHT_PAREN, message: "Expect ')' after arguments.")
+        return Call(calee: callee, paren: paren, arguments: arguments)
+      }
     
     func primary() throws -> Declarations {
         if (match(types: .FALSE)) { return Literal(value: false) };
@@ -241,8 +270,13 @@ class Parser {
         return statements
     }
     
+    func function(_ kind: String) throws -> Declarations {
+        let name = try consume(type: .IDENTIFIER, message: "Expect \(kind) Name.")
+    }
+    
     func declaration() -> Declarations? {
         do {
+            if (match(types: .FUN)) { return try function("function") }
             if (match(types: .VAR)) { return try varDeclaration() };
             if (match(types: .LET)) { return try letDeclaration() }
 

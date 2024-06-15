@@ -74,6 +74,28 @@ class Interpreter_: Visitor {
     
     init(environemnt: Environment = Environment()) {
         self.environemnt = environemnt
+        self.environemnt.define(name: "clock", value: FunctionCallableClock())
+        
+        self.environemnt.define(name: "println", value: FunctionCallablePrintLn())
+    }
+    
+    func visitCall(_ declarations: Call) -> Any? {
+        let calee = evaluate(expr: declarations.calee)
+        
+        var arguments: [Any?] = []
+        for argument in declarations.arguments {
+            arguments.append(evaluate(expr: argument))
+        }
+        
+        if let function = calee as? Function {
+            if arguments.count !=  function.arity() {
+                print("To many, or to little arguments passed for \(declarations.paren). Got \(arguments.count) but expected \(function.arity())")
+            }
+            return function.call(self, arguments as [Any])
+        } else {
+            print("Can only call to functions & classes")
+        }
+        return nil
     }
     
     func visitBreak(_ declarations: Break) -> Any? {
