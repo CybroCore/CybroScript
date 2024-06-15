@@ -1,9 +1,6 @@
-var start = clock();
-
-for (var i = 0; i < 10000; i = i + 1) {
-    print i;
+fun procedure() {
+  print "don't return anything";
 }
 
-var end = clock();
-
-print end - start;
+var result = procedure();
+print result; // ?

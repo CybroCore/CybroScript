@@ -98,6 +98,12 @@ class Interpreter_: Visitor {
         return nil
     }
     
+    func visitFunctionDecl(_ declarations: FunctionDecl) -> Any? {
+        let function = CybroFunction(declarations)
+        environemnt.define(name: declarations.name.lexeme, value: function)
+        return nil
+    }
+    
     func visitBreak(_ declarations: Break) -> Any? {
         let level = declarations.level - 1
         return Break(level: level)

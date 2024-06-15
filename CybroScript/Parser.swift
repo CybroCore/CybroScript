@@ -177,11 +177,14 @@ class Parser {
     func finishCall(_ callee: Declarations) throws -> Declarations {
         var arguments: [Declarations] = []
         if !check(type: .RIGHT_PAREN) {
-          while match(types: .COMMA) {
+          while true {
               if arguments.count >= 255 {
                   try error(token: peek(), message: "Can't have more than 255 arguments!")
               }
             arguments.append(try expression());
+              if !match(types: .COMMA) {
+                  break
+              }
           }
         }
         let paren = try consume(type: .RIGHT_PAREN, message: "Expect ')' after arguments.")
@@ -272,6 +275,25 @@ class Parser {
     
     func function(_ kind: String) throws -> Declarations {
         let name = try consume(type: .IDENTIFIER, message: "Expect \(kind) Name.")
+        try consume(type: .LEFT_PAREN, message: "Expect '(' after \(kind) name.")
+        var parameters: [Token] = []
+        if !check(type: .RIGHT_PAREN) {
+            while true {
+                if parameters.count > 255 {
+                    try error(token: peek(), message: "Can't have more than 255 parameters.")
+                }
+                
+                parameters.append(try consume(type: .IDENTIFIER, message: "Expected parameter name"))
+                
+                if !match(types: .COMMA) {
+                    break
+                }
+            }
+        }
+        try consume(type: .RIGHT_PAREN, message: "Expected ')' after parameters")
+        try consume(type: .LEFT_BRACE, message: "Expected '{' after parameter list.")
+        let body: [Declarations] = try block();
+        return FunctionDecl(name: name, params: parameters, body: body)
     }
     
     func declaration() -> Declarations? {
