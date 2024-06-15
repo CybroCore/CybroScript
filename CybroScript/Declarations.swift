@@ -1,28 +1,29 @@
 import Foundation
 
 protocol Declarations {
-    func accept<V: Visitor>(_ visitor: V) -> Any?
+    func accept<V: Visitor>(_ visitor: V) throws -> Any?
 }
 
 protocol Visitor {
-    func visitBinary(_ declarations: Binary) -> Any?
-    func visitGrouping(_ declarations: Grouping) -> Any?
-    func visitLiteral(_ declarations: Literal) -> Any?
-    func visitUnary(_ declarations: Unary) -> Any?
-    func visitTernary(_ declarations: Ternary) -> Any?
-    func visitBlock(_ declarations: Block) -> Any?
-    func visitExpression(_ declarations: Expression) -> Any?
-    func visitPrint(_ declarations: Print) -> Any?
-    func visitVar(_ declarations: Var) -> Any?
-    func visitLet(_ declarations: Let) -> Any?
-    func visitVariable(_ declarations: Variable) -> Any?
-    func visitIf(_ declarations: If) -> Any?
-    func visitAssign(_ declarations: Assign) -> Any?
-    func visitLogical(_ declarations: Logical) -> Any?
-    func visitWhile(_ declarations: While) -> Any?
-    func visitBreak(_ declarations: Break) -> Any?
-    func visitCall(_ declarations: Call) -> Any?
-    func visitFunctionDecl(_ declarations: FunctionDecl) -> Any?
+    func visitBinary(_ declarations: Binary) throws -> Any?
+    func visitGrouping(_ declarations: Grouping) throws -> Any?
+    func visitLiteral(_ declarations: Literal) throws -> Any?
+    func visitUnary(_ declarations: Unary) throws -> Any?
+    func visitTernary(_ declarations: Ternary) throws -> Any?
+    func visitBlock(_ declarations: Block) throws -> Any?
+    func visitExpression(_ declarations: Expression) throws -> Any?
+    func visitPrint(_ declarations: Print) throws -> Any?
+    func visitVar(_ declarations: Var) throws -> Any?
+    func visitLet(_ declarations: Let) throws -> Any?
+    func visitVariable(_ declarations: Variable) throws -> Any?
+    func visitIf(_ declarations: If) throws -> Any?
+    func visitAssign(_ declarations: Assign) throws -> Any?
+    func visitLogical(_ declarations: Logical) throws -> Any?
+    func visitWhile(_ declarations: While) throws -> Any?
+    func visitBreak(_ declarations: Break) throws -> Any?
+    func visitCall(_ declarations: Call) throws -> Any?
+    func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any?
+    func visitReturn(_ declarations: Return) throws -> Any?
 }
 
 class Binary: Declarations {
@@ -36,8 +37,8 @@ class Binary: Declarations {
         self.right = right
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitBinary(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitBinary(self)
     }
 }
 
@@ -48,8 +49,8 @@ class Grouping: Declarations {
         self.expression = expression
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitGrouping(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitGrouping(self)
     }
 }
 
@@ -60,8 +61,8 @@ class Literal: Declarations {
         self.value = value
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitLiteral(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitLiteral(self)
     }
 }
 
@@ -74,8 +75,8 @@ class Unary: Declarations {
         self.right = right
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitUnary(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitUnary(self)
     }
 }
 
@@ -94,8 +95,8 @@ class Ternary: Declarations {
         self.value3 = value3
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitTernary(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitTernary(self)
     }
 }
 
@@ -106,8 +107,8 @@ class Block: Declarations {
         self.statements = statements
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitBlock(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitBlock(self)
     }
 }
 
@@ -118,8 +119,8 @@ class Expression: Declarations {
         self.expression = expression
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitExpression(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitExpression(self)
     }
 }
 
@@ -130,8 +131,8 @@ class Print: Declarations {
         self.expression = expression
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitPrint(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitPrint(self)
     }
 }
 
@@ -144,8 +145,8 @@ class Var: Declarations {
         self.initializer = initializer
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitVar(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitVar(self)
     }
 }
 
@@ -158,8 +159,8 @@ class Let: Declarations {
         self.intializer = intializer
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitLet(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitLet(self)
     }
 }
 
@@ -170,8 +171,8 @@ class Variable: Declarations {
         self.name = name
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitVariable(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitVariable(self)
     }
 }
 
@@ -186,8 +187,8 @@ class If: Declarations {
         self.elseBranch = elseBranch
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitIf(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitIf(self)
     }
 }
 
@@ -200,8 +201,8 @@ class Assign: Declarations {
         self.value = value
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitAssign(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitAssign(self)
     }
 }
 
@@ -216,8 +217,8 @@ class Logical: Declarations {
         self.right = right
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitLogical(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitLogical(self)
     }
 }
 
@@ -230,8 +231,8 @@ class While: Declarations {
         self.body = body
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitWhile(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitWhile(self)
     }
 }
 
@@ -242,8 +243,8 @@ class Break: Declarations {
         self.level = level
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitBreak(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitBreak(self)
     }
 }
 
@@ -258,8 +259,8 @@ class Call: Declarations {
         self.arguments = arguments
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitCall(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitCall(self)
     }
 }
 
@@ -274,8 +275,24 @@ class FunctionDecl: Declarations {
         self.body = body
     }
 
-    func accept<V: Visitor>(_ visitor: V) -> Any? {
-        return visitor.visitFunctionDecl(self)
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitFunctionDecl(self)
+    }
+}
+
+class Return: Declarations {
+    let keyword: Token
+    let value: Declarations
+    let level: Int
+
+    init(keyword: Token, value: Declarations, level: Int) {
+        self.keyword = keyword
+        self.value = value
+        self.level = level
+    }
+
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitReturn(self)
     }
 }
 

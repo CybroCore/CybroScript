@@ -334,15 +334,28 @@ class Parser {
       }
     
     func statement() throws -> Declarations {
-        if match(types: .FOR) { return try forStatement() }
-        if match(types: .IF) { return try ifStatement() }
+        if match(types: .FOR) { return try forStatement() };
+        if match(types: .IF) { return try ifStatement() };
         if match(types: .PRINT) { return try printStatement() };
+        if match(types: .RETURN) { return try returnStatement() };
         if match(types: .WHILE) { return try whileStatement() };
-        if match(types: .BREAK) { return try breakStatement() }
-        if match(types: .LEFT_BRACE) { return try Block(statements: block())}
+        if match(types: .BREAK) { return try breakStatement() };
+        if match(types: .LEFT_BRACE) { return try Block(statements: block())};
 
         return try expressionStatement();
       }
+    
+    func returnStatement() throws -> Declarations{
+        let keyword = previous()
+        var value: Declarations? = nil
+        
+        if !check(type: .SEMICOLON) {
+            value = try expression()
+        }
+        
+        try consume(type: .SEMICOLON, message: "Expect ';' after return value.");
+        return Return(keyword: keyword, value: value!, level: 1)
+    }
     
     func breakStatement() throws -> Declarations {
         try consume(type: .SEMICOLON, message: "Expect ';' after break statement")

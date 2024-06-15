@@ -51,7 +51,7 @@ struct GenerateAst {
             "Break    : level: Int",
             "Call     : calee: Declarations, paren: Token, arguments: [Declarations]",
             "FunctionDecl: name: Token, params: [Token], body: [Declarations]",
-            "Return: keyword: Token value: Declarations"
+            "Return: keyword: Token, value: Declarations, level: Int"
             ]);
     }
 
@@ -63,7 +63,7 @@ struct GenerateAst {
         writer.writeLine()
         
         writer.writeLine("protocol \(baseName) {")
-        writer.writeLine("    func accept<V: Visitor>(_ visitor: V) -> Any?")
+        writer.writeLine("    func accept<V: Visitor>(_ visitor: V) throws -> Any?")
         writer.writeLine("}")
         writer.writeLine()
         
@@ -105,8 +105,8 @@ struct GenerateAst {
         writer.writeLine("    }")
         writer.writeLine()
         
-        writer.writeLine("    func accept<V: Visitor>(_ visitor: V) -> Any? {")
-        writer.writeLine("        return visitor.visit\(className)(self)")
+        writer.writeLine("    func accept<V: Visitor>(_ visitor: V) throws -> Any? {")
+        writer.writeLine("        return try visitor.visit\(className)(self)")
         writer.writeLine("    }")
         writer.writeLine("}")
         writer.writeLine()
@@ -116,7 +116,7 @@ struct GenerateAst {
         writer.writeLine("protocol Visitor {")
         for type in types {
             let typeName = type.split(separator: ":").first!.trimmingCharacters(in: .whitespaces)
-            writer.writeLine("    func visit\(typeName)(_ \(baseName.lowercased()): \(typeName)) -> Any?")
+            writer.writeLine("    func visit\(typeName)(_ \(baseName.lowercased()): \(typeName)) throws -> Any?")
         }
         writer.writeLine("}")
     }
@@ -125,5 +125,3 @@ struct GenerateAst {
 func runGenerator() {
     GenerateAst().run()
 }
-
-runGenerator()

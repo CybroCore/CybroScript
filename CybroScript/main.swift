@@ -69,67 +69,80 @@ class Environment {
       }
 }
 
+enum RuntimeErrors: Error {
+    case invalidReturnType(Any?)
+    case breakNotInLoop
+}
+
 class Interpreter_: Visitor {
-    var environemnt = Environment()
+    static var global = Environment()
+    var environemnt = global
     
-    init(environemnt: Environment = Environment()) {
-        self.environemnt = environemnt
-        self.environemnt.define(name: "clock", value: FunctionCallableClock())
-        
-        self.environemnt.define(name: "println", value: FunctionCallablePrintLn())
+    init() {
+        Interpreter_.global.define(name: "clock", value: FunctionCallableClock())
+        Interpreter_.global.define(name: "println", value: FunctionCallablePrintLn())
     }
     
-    func visitCall(_ declarations: Call) -> Any? {
-        let calee = evaluate(expr: declarations.calee)
+    func visitReturn(_ declarations: Return) throws -> Any? {
+        var value: Any? = nil
+        if declarations.value != nil {
+            value = try evaluate(expr: declarations.value)
+        }
+        throw RuntimeErrors.invalidReturnType(value)
+    }
+    
+    func visitCall(_ declarations: Call) throws -> Any? {
+        let calee = try evaluate(expr: declarations.calee)
         
         var arguments: [Any?] = []
         for argument in declarations.arguments {
-            arguments.append(evaluate(expr: argument))
+            arguments.append(try evaluate(expr: argument))
         }
         
         if let function = calee as? Function {
             if arguments.count !=  function.arity() {
                 print("To many, or to little arguments passed for \(declarations.paren). Got \(arguments.count) but expected \(function.arity())")
             }
-            return function.call(self, arguments as [Any])
+            return try function.call(self, arguments as [Any])
         } else {
             print("Can only call to functions & classes")
         }
         return nil
     }
     
-    func visitFunctionDecl(_ declarations: FunctionDecl) -> Any? {
+    func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any? {
         let function = CybroFunction(declarations)
         environemnt.define(name: declarations.name.lexeme, value: function)
         return nil
     }
     
-    func visitBreak(_ declarations: Break) -> Any? {
-        let level = declarations.level - 1
-        return Break(level: level)
+    func visitBreak(_ declarations: Break) throws -> Any? {
+        throw RuntimeErrors.breakNotInLoop
     }
     
-    func visitIf(_ declarations: If) -> Any? {
-        if isTruthy(evaluate(expr: declarations.condition)) {
-            return execute(stmt: declarations.thenBranch)
+    func visitIf(_ declarations: If) throws -> Any? {
+        if isTruthy(try evaluate(expr: declarations.condition)) {
+            return try execute(stmt: declarations.thenBranch)
         } else if let elseBranch = declarations.elseBranch {
-            return execute(stmt: elseBranch)
+            return try execute(stmt: elseBranch)
         }
         return nil
     }
     
-    func visitWhile(_ declarations: While) -> Any? {
-        while isTruthy(evaluate(expr: declarations.condition)) {
-            let value: Any? = execute(stmt: declarations.body)
-            if let value = value as? Break {
-                return Break(level: -1)
+    func visitWhile(_ declarations: While) throws -> Any? {
+        while isTruthy(try evaluate(expr: declarations.condition)) {
+            do {
+                let value: Any? = try execute(stmt: declarations.body)
+            } catch RuntimeErrors.breakNotInLoop {
+                // That means we can break out of the loop immediately
+                return nil
             }
         }
         return nil
     }
     
-    func visitLogical(_ declarations: Logical) -> Any? {
-        let left = evaluate(expr: declarations.left);
+    func visitLogical(_ declarations: Logical) throws -> Any? {
+        let left = try evaluate(expr: declarations.left);
         
         if declarations.operator_.type == .OR {
             if (isTruthy(left)) { return left };
@@ -137,50 +150,56 @@ class Interpreter_: Visitor {
             if (!isTruthy(left)) { return left };
         }
         
-        return evaluate(expr: declarations.right);
+        return try evaluate(expr: declarations.right);
      }
     
-    func visitBlock(_ stmt: Block) -> Any? {
-        return executeBlock(stmt.statements, Environment(enclosing: environemnt));
+    func visitBlock(_ stmt: Block) throws -> Any? {
+        return try executeBlock(stmt.statements, Environment(enclosing: environemnt));
     }
       
-     func executeBlock(_ statements: [Declarations], _ environemnt: Environment) -> Any? {
-         let previous = self.environemnt
-         do {
-             self.environemnt = environemnt
-             
-             for statement in statements {
-                 let result = execute(stmt: statement)
-                 if let result = result as? Break {
-                    return result
-                 }
-             }
-         }
-         self.environemnt = previous
-         return nil
+    func executeBlock(_ statements: [Declarations], _ environment: Environment) throws -> Any? {
+        // Save the current environment
+        let previousEnvironment = self.environemnt
+        // Set the current environment to the provided environment
+        self.environemnt = environment
+        
+        // Execute each statement in the block
+        for statement in statements {
+            do {
+                _ = try execute(stmt: statement)
+            } catch {
+                // Restore the previous environment in case of error
+                self.environemnt = previousEnvironment
+                throw error
+            }
+        }
+        
+        // Restore the previous environment after executing the block
+        self.environemnt = previousEnvironment
+        return nil
     }
-    
-     func visitAssign(_ declarations: Assign) -> Any? {
-        var value = evaluate(expr: declarations.value)
+
+     func visitAssign(_ declarations: Assign) throws -> Any? {
+        var value = try evaluate(expr: declarations.value)
         environemnt.assign(declarations.name, value!)
         return value
     }
     
-    func visitLet(_ declarations: Let) -> Any? {
-        var value = evaluate(expr: declarations.intializer)
+    func visitLet(_ declarations: Let) throws -> Any? {
+        var value = try evaluate(expr: declarations.intializer)
         
         environemnt.defineLet(name: declarations.name.lexeme, value: value)
         return nil
     }
     
-    func visitVar(_ declarations: Var) -> Any? {
-        var value = evaluate(expr: declarations.initializer)
+    func visitVar(_ declarations: Var) throws -> Any? {
+        var value = try evaluate(expr: declarations.initializer)
         
         environemnt.define(name: declarations.name.lexeme, value: value)
         return nil
     }
     
-    func visitVariable(_ declarations: Variable) -> Any? {
+    func visitVariable(_ declarations: Variable) throws -> Any? {
         return environemnt.get(name: declarations.name)
     }
     
@@ -188,12 +207,12 @@ class Interpreter_: Visitor {
         return ""
     }
     
-    func visitExpression(_ declarations: Expression) -> Any? {
-        evaluate(expr: declarations.expression)
+    func visitExpression(_ declarations: Expression) throws -> Any? {
+        try evaluate(expr: declarations.expression)
     }
     
-    func visitPrint(_ declarations: Print) -> Any? {
-        let value = evaluate(expr: declarations.expression)
+    func visitPrint(_ declarations: Print) throws -> Any? {
+        let value = try evaluate(expr: declarations.expression)
         var out = "\(value ?? "nil" )".replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "")
         out = "\(out)".replacingOccurrences(of: "Optional(", with: "").replacingOccurrences(of: ")", with: "")
         print(out)
@@ -206,16 +225,16 @@ class Interpreter_: Visitor {
         return expr.value
     }
 
-    func visitGrouping(_ expr: Grouping) -> Any? {
-        return evaluate(expr: expr.expression)
+    func visitGrouping(_ expr: Grouping) throws -> Any? {
+        return try evaluate(expr: expr.expression)
     }
 
-    func evaluate(expr: Declarations) -> Any? {
-        return expr.accept(self)
+    func evaluate(expr: Declarations) throws -> Any? {
+        return try expr.accept(self)
     }
 
-    func visitUnary(_ expr: Unary) -> Any? {
-        let right = evaluate(expr: expr.right)
+    func visitUnary(_ expr: Unary) throws -> Any? {
+        let right = try evaluate(expr: expr.right)
 
         switch expr.operator_.type {
         case .MINUS:
@@ -249,9 +268,9 @@ class Interpreter_: Visitor {
 
     }
 
-    func visitBinary(_ expr: Binary) -> Any? {
-        let left = evaluate(expr: expr.left);
-        let right = evaluate(expr: expr.right);
+    func visitBinary(_ expr: Binary) throws -> Any? {
+        let left = try evaluate(expr: expr.left);
+        let right = try evaluate(expr: expr.right);
         
             switch expr.operator_.type {
             case .MINUS:
@@ -356,19 +375,14 @@ class Interpreter_: Visitor {
         do {
               for statement in statements {
                   let value = try execute(stmt: statement);
-                  if let value = value as? Break {
-                      if value.level > -1 {
-                          print("You can't execute a break statement outside of a 'For', 'While' or 'Switch' statement / block.")
-                      }
-                  }
               }
             } catch {
-                print("Errors")
+                print("\(error)")
             }
       }
     
-    func execute(stmt: Declarations) -> Any? {
-        return stmt.accept(self);
+    func execute(stmt: Declarations) throws -> Any? {
+        return try stmt.accept(self);
       }
 }
 

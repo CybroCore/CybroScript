@@ -8,7 +8,7 @@
 import Foundation
 
 protocol Function {
-    func call(_ interpreter: Interpreter_, _ arguments: [Any]) -> Any?
+    func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any?
     func arity() -> Int
     func toString() -> String
 }
@@ -26,13 +26,17 @@ class CybroFunction: Function {
         self.declaration = declaration
     }
     
-    func call(_ interpreter: Interpreter_, _ arguments: [Any]) -> Any? {
+    func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any? {
         let environment = Environment(enclosing: interpreter.environemnt)
         for (parameter, argument) in zip(declaration.params, arguments) {
             environment.define(name: parameter.lexeme, value: argument)
         }
         
-        interpreter.executeBlock(declaration.body, environment)
+        do {
+            try interpreter.executeBlock(declaration.body, environment)
+        } catch RuntimeErrors.invalidReturnType(let value){
+            return value
+        }
         return nil
     }
     
@@ -59,7 +63,11 @@ class FunctionCallableClock: Function {
 
 class FunctionCallablePrintLn: Function {
     func call(_ interpreter: Interpreter_, _ arguments: [Any]) -> Any? {
-        print(arguments[0])
+        if let fun = arguments[0] as? Function {
+            print(fun.toString())
+        } else {
+            print(arguments[0])
+        }
         return nil
     }
     
