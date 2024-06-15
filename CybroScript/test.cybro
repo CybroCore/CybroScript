@@ -3,4 +3,7 @@ fun fib(n) {
   return fib(n - 2) + fib(n - 1);
 }
 
+let start = clock();
 print fib(11);
+print fib;
+print clock() - start;

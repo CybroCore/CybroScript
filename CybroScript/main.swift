@@ -213,8 +213,13 @@ class Interpreter_: Visitor {
     
     func visitPrint(_ declarations: Print) throws -> Any? {
         let value = try evaluate(expr: declarations.expression)
-        var out = "\(value ?? "nil" )".replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "")
-        out = "\(out)".replacingOccurrences(of: "Optional(", with: "").replacingOccurrences(of: ")", with: "")
+        var out = ""
+        if let value = value as? Function {
+            out = value.toString()
+        } else {
+            out = "\(value ?? "nil" )".replacingOccurrences(of: "Optional(\"", with: "").replacingOccurrences(of: "\")", with: "")
+            out = "\(out)".replacingOccurrences(of: "Optional(", with: "").replacingOccurrences(of: ")", with: "")
+        }
         print(out)
         return ""
     }
