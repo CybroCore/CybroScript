@@ -21,13 +21,15 @@ extension Function {
 
 class CybroFunction: Function {
     let declaration: FunctionDecl
+    var closure: Environment
     
-    init(_ declaration: FunctionDecl) {
+    init(_ declaration: FunctionDecl, _ closure: Environment) {
+        self.closure = closure
         self.declaration = declaration
     }
     
     func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any? {
-        let environment = Environment(enclosing: interpreter.environemnt)
+        let environment = Environment(enclosing: closure)
         for (parameter, argument) in zip(declaration.params, arguments) {
             environment.define(name: parameter.lexeme, value: argument)
         }

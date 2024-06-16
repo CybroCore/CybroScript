@@ -111,7 +111,7 @@ class Interpreter_: Visitor {
     }
     
     func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any? {
-        let function = CybroFunction(declarations)
+        let function = CybroFunction(declarations, environemnt)
         environemnt.define(name: declarations.name.lexeme, value: function)
         return nil
     }
