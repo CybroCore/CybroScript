@@ -20,11 +20,11 @@ class Parser {
         self.current = current
     }
     
-    func expression() throws -> Declarations {
+    func expression() throws -> any Declarations {
         return try assignment()
     }
     
-    func assignment() throws -> Declarations {
+    func assignment() throws -> any Declarations {
         let expr = try or()
         
         if match(types: .EQUAL) {
@@ -42,7 +42,7 @@ class Parser {
         return expr
     }
     
-    func or() throws -> Declarations {
+    func or() throws -> any Declarations {
         var expr = try and()
         
         while match(types: .OR) {
@@ -54,7 +54,7 @@ class Parser {
         return expr
     }
     
-    func and() throws -> Declarations {
+    func and() throws -> any Declarations {
         var expr = try equality()
         
         while match(types: .AND) {
@@ -66,8 +66,8 @@ class Parser {
         return expr
     }
     
-    func equality() throws -> Declarations {
-        var expr: Declarations = try comparison()
+    func equality() throws -> any Declarations {
+        var expr: any Declarations = try comparison()
         
         while match(types: .BANG_EQUAL, .EQUAL_EQUAL) {
             let operator_ = previous()
@@ -78,7 +78,7 @@ class Parser {
         return expr
     }
     
-    func comparison() throws -> Declarations {
+    func comparison() throws -> any Declarations {
         var expr = try term();
         
         while (match(types: .GREATER, .GREATER_EQUAL, .LESS, .LESS_EQUAL, .MIN, .MAX)) {
@@ -90,7 +90,7 @@ class Parser {
         return expr;
     }
     
-    func term() throws -> Declarations {
+    func term() throws -> any Declarations {
         var expr = try factor();
         
         while (match(types: .MINUS, .PLUS)) {
@@ -102,7 +102,7 @@ class Parser {
         return expr;
     }
     
-    func factor() throws -> Declarations {
+    func factor() throws -> any Declarations {
         var expr = try unary();
         
         while (match(types: .SLASH, .STAR)) {
@@ -149,7 +149,7 @@ class Parser {
         return tokens[current - 1]
     }
     
-    func unary() throws -> Declarations {
+    func unary() throws -> any Declarations {
         if (match(types: .BANG, .MINUS)) {
             var operator_ = previous();
             var right = try unary();
@@ -160,7 +160,7 @@ class Parser {
     }
     
     
-    func call() throws -> Declarations {
+    func call() throws -> any Declarations {
         var expr = try primary();
 
         while true {
@@ -174,8 +174,8 @@ class Parser {
         return expr;
       }
     
-    func finishCall(_ callee: Declarations) throws -> Declarations {
-        var arguments: [Declarations] = []
+    func finishCall(_ callee: any Declarations) throws -> any Declarations {
+        var arguments: [any Declarations] = []
         if !check(type: .RIGHT_PAREN) {
           while true {
               if arguments.count >= 255 {
@@ -191,7 +191,7 @@ class Parser {
         return Call(calee: callee, paren: paren, arguments: arguments)
       }
     
-    func primary() throws -> Declarations {
+    func primary() throws -> any Declarations {
         if (match(types: .FALSE)) { return Literal(value: false) };
         if (match(types: .TRUE)) { return Literal(value: true) };
         if (match(types: .NIL)) { return Literal(value: nil) };
@@ -257,8 +257,8 @@ class Parser {
         }
     }
     
-    func parse() -> [Declarations]? {
-        var statements: [Declarations] = []
+    func parse() -> [any Declarations]? {
+        var statements: [any Declarations] = []
             while !isAtEnd() {
            do {
              let out = try declaration()
@@ -273,7 +273,7 @@ class Parser {
         return statements
     }
     
-    func function(_ kind: String) throws -> Declarations {
+    func function(_ kind: String) throws -> any Declarations {
         let name = try consume(type: .IDENTIFIER, message: "Expect \(kind) Name.")
         try consume(type: .LEFT_PAREN, message: "Expect '(' after \(kind) name.")
         var parameters: [Token] = []
@@ -292,11 +292,11 @@ class Parser {
         }
         try consume(type: .RIGHT_PAREN, message: "Expected ')' after parameters")
         try consume(type: .LEFT_BRACE, message: "Expected '{' after parameter list.")
-        let body: [Declarations] = try block();
+        let body: [any Declarations] = try block();
         return FunctionDecl(name: name, params: parameters, body: body)
     }
     
-    func declaration() -> Declarations? {
+    func declaration() -> (any Declarations)? {
         do {
             if (match(types: .FUN)) { return try function("function") }
             if (match(types: .VAR)) { return try varDeclaration() };
@@ -309,10 +309,10 @@ class Parser {
         }
       }
     
-    func varDeclaration() throws -> Declarations {
+    func varDeclaration() throws -> any Declarations {
         let name = try consume(type: .IDENTIFIER, message: "Expect variable name.")
 
-        var initializer: Declarations? = nil;
+        var initializer: (any Declarations)? = nil;
         if (match(types: .EQUAL)) {
           initializer = try expression();
         }
@@ -321,10 +321,10 @@ class Parser {
         return Var(name: name, initializer: initializer!);
       }
     
-    func letDeclaration() throws -> Declarations {
+    func letDeclaration() throws -> any Declarations {
         let name = try consume(type: .IDENTIFIER, message: "Expect variable name.")
 
-        var initializer: Declarations? = nil;
+        var initializer: (any Declarations)? = nil;
         if (match(types: .EQUAL)) {
           initializer = try expression();
         }
@@ -333,7 +333,7 @@ class Parser {
         return Let(name: name, intializer: initializer!);
       }
     
-    func statement() throws -> Declarations {
+    func statement() throws -> any Declarations {
         if match(types: .FOR) { return try forStatement() };
         if match(types: .IF) { return try ifStatement() };
         if match(types: .PRINT) { return try printStatement() };
@@ -345,9 +345,9 @@ class Parser {
         return try expressionStatement();
       }
     
-    func returnStatement() throws -> Declarations{
+    func returnStatement() throws -> any Declarations{
         let keyword = previous()
-        var value: Declarations? = nil
+        var value: (any Declarations)? = nil
         
         if !check(type: .SEMICOLON) {
             value = try expression()
@@ -357,15 +357,15 @@ class Parser {
         return Return(keyword: keyword, value: value!, level: 1)
     }
     
-    func breakStatement() throws -> Declarations {
+    func breakStatement() throws -> any Declarations {
         try consume(type: .SEMICOLON, message: "Expect ';' after break statement")
         return Break(level: 1)
     }
     
-    func forStatement() throws -> Declarations {
+    func forStatement() throws -> any Declarations {
         try consume(type: .LEFT_PAREN, message: "Expect '(' after for condition")
         
-        var intializer: Declarations? = nil
+        var intializer: (any Declarations)? = nil
         if match(types: .SEMICOLON) {
             intializer = nil
         } else if match(types: .VAR) {
@@ -374,13 +374,13 @@ class Parser {
             intializer = try expressionStatement();
         }
         
-        var condition: Declarations? = nil
+        var condition: (any Declarations)? = nil
         if (!check(type: .SEMICOLON)) {
             condition = try expression()
         }
         try consume(type: .SEMICOLON, message: "Expect ';' after loop condition.")
             
-        var increment: Declarations? = nil
+        var increment: (any Declarations)? = nil
         if (!check(type: .RIGHT_PAREN)) {
             increment = try expression()
         }
@@ -410,7 +410,7 @@ class Parser {
         return body
     }
     
-    func whileStatement() throws -> Declarations {
+    func whileStatement() throws -> any Declarations {
         try consume(type: .LEFT_PAREN, message: "Expect '(' after if condition")
         let condition = try expression();
         try consume(type: .RIGHT_PAREN, message: "Expect ')' after if condition.");
@@ -419,13 +419,13 @@ class Parser {
         return While(condition: condition, body: body)
    }
     
-    func ifStatement() throws -> Declarations {
+    func ifStatement() throws -> any Declarations {
         try consume(type: .LEFT_PAREN, message: "Expect '(' after if condition")
         let condition = try expression();
         try consume(type: .RIGHT_PAREN, message: "Expect ')' after if condition.");
 
         let thenBranch = try statement();
-        var elseBranch: Declarations? = nil;
+        var elseBranch: (any Declarations)? = nil;
         if (match(types: .ELSE)) {
           elseBranch = try statement();
         }
@@ -433,8 +433,8 @@ class Parser {
         return If(condition: condition, thenBranch: thenBranch, elseBranch: elseBranch)
       }
     
-    func block() throws -> [Declarations] {
-        var statements: [Declarations] = [];
+    func block() throws -> [any Declarations] {
+        var statements: [any Declarations] = [];
 
         while !check(type: .RIGHT_BRACE) && !isAtEnd() {
             if let decl = declaration() {
@@ -446,13 +446,13 @@ class Parser {
         return statements;
     }
     
-    func printStatement() throws -> Declarations {
+    func printStatement() throws -> any Declarations {
         let value = try expression();
         try consume(type: .SEMICOLON, message: "Expect ';' after value.");
         return Print(expression: value);
       }
     
-    func expressionStatement() throws -> Declarations {
+    func expressionStatement() throws -> any Declarations {
         let expr = try expression();
         try consume(type: .SEMICOLON, message: "Expect ';' after expression.");
         return Expression(expression: expr);

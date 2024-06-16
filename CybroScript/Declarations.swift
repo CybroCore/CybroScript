@@ -1,9 +1,15 @@
 import Foundation
 
-protocol Declarations {
+protocol Declarations: Hashable {
     func accept<V: Visitor>(_ visitor: V) throws -> Any?
+    var id: UUID { get }
 }
 
+extension Declarations {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
 protocol Visitor {
     func visitBinary(_ declarations: Binary) throws -> Any?
     func visitGrouping(_ declarations: Grouping) throws -> Any?
@@ -27,11 +33,12 @@ protocol Visitor {
 }
 
 class Binary: Declarations {
-    let left: Declarations
+    let left: any Declarations
     let operator_: Token
-    let right: Declarations
+    let right: any Declarations
+    let id: UUID = UUID()
 
-    init(left: Declarations, operator_: Token, right: Declarations) {
+    init(left: any Declarations, operator_: Token, right: any Declarations) {
         self.left = left
         self.operator_ = operator_
         self.right = right
@@ -40,22 +47,32 @@ class Binary: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitBinary(self)
     }
+
+    static func == (lhs: Binary, rhs: Binary) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Grouping: Declarations {
-    let expression: Declarations
+    let expression: any Declarations
+    let id: UUID = UUID()
 
-    init(expression: Declarations) {
+    init(expression: any Declarations) {
         self.expression = expression
     }
 
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitGrouping(self)
     }
+
+    static func == (lhs: Grouping, rhs: Grouping) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Literal: Declarations {
     let value: Any?
+    let id: UUID = UUID()
 
     init(value: Any?) {
         self.value = value
@@ -64,19 +81,28 @@ class Literal: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitLiteral(self)
     }
+
+    static func == (lhs: Literal, rhs: Literal) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Unary: Declarations {
     let operator_: Token
-    let right: Declarations
+    let right: any Declarations
+    let id: UUID = UUID()
 
-    init(operator_: Token, right: Declarations) {
+    init(operator_: Token, right: any Declarations) {
         self.operator_ = operator_
         self.right = right
     }
 
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitUnary(self)
+    }
+
+    static func == (lhs: Unary, rhs: Unary) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 
@@ -86,6 +112,7 @@ class Ternary: Declarations {
     let value2: Any
     let op2: Token
     let value3: Any?
+    let id: UUID = UUID()
 
     init(value1: Any?, op1: Token, value2: Any, op2: Token, value3: Any?) {
         self.value1 = value1
@@ -98,49 +125,69 @@ class Ternary: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitTernary(self)
     }
+
+    static func == (lhs: Ternary, rhs: Ternary) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Block: Declarations {
-    let statements: [Declarations]
+    let statements: [any Declarations]
+    let id: UUID = UUID()
 
-    init(statements: [Declarations]) {
+    init(statements: [any Declarations]) {
         self.statements = statements
     }
 
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitBlock(self)
     }
+
+    static func == (lhs: Block, rhs: Block) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Expression: Declarations {
-    let expression: Declarations
+    let expression: any Declarations
+    let id: UUID = UUID()
 
-    init(expression: Declarations) {
+    init(expression: any Declarations) {
         self.expression = expression
     }
 
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitExpression(self)
     }
+
+    static func == (lhs: Expression, rhs: Expression) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Print: Declarations {
-    let expression: Declarations
+    let expression: any Declarations
+    let id: UUID = UUID()
 
-    init(expression: Declarations) {
+    init(expression: any Declarations) {
         self.expression = expression
     }
 
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitPrint(self)
     }
+
+    static func == (lhs: Print, rhs: Print) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Var: Declarations {
     let name: Token
-    let initializer: Declarations
+    let initializer: any Declarations
+    let id: UUID = UUID()
 
-    init(name: Token, initializer: Declarations) {
+    init(name: Token, initializer: any Declarations) {
         self.name = name
         self.initializer = initializer
     }
@@ -148,13 +195,18 @@ class Var: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitVar(self)
     }
+
+    static func == (lhs: Var, rhs: Var) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Let: Declarations {
     let name: Token
-    let intializer: Declarations
+    let intializer: any Declarations
+    let id: UUID = UUID()
 
-    init(name: Token, intializer: Declarations) {
+    init(name: Token, intializer: any Declarations) {
         self.name = name
         self.intializer = intializer
     }
@@ -162,10 +214,15 @@ class Let: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitLet(self)
     }
+
+    static func == (lhs: Let, rhs: Let) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Variable: Declarations {
     let name: Token
+    let id: UUID = UUID()
 
     init(name: Token) {
         self.name = name
@@ -174,14 +231,19 @@ class Variable: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitVariable(self)
     }
+
+    static func == (lhs: Variable, rhs: Variable) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class If: Declarations {
-    let condition: Declarations
-    let thenBranch: Declarations
-    let elseBranch: Declarations?
+    let condition: any Declarations
+    let thenBranch: any Declarations
+    let elseBranch: (any Declarations)?
+    let id: UUID = UUID()
 
-    init(condition: Declarations, thenBranch: Declarations, elseBranch: Declarations?) {
+    init(condition: any Declarations, thenBranch: any Declarations, elseBranch: (any Declarations)?) {
         self.condition = condition
         self.thenBranch = thenBranch
         self.elseBranch = elseBranch
@@ -190,13 +252,18 @@ class If: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitIf(self)
     }
+
+    static func == (lhs: If, rhs: If) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Assign: Declarations {
     let name: Token
-    let value: Declarations
+    let value: any Declarations
+    let id: UUID = UUID()
 
-    init(name: Token, value: Declarations) {
+    init(name: Token, value: any Declarations) {
         self.name = name
         self.value = value
     }
@@ -204,14 +271,19 @@ class Assign: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitAssign(self)
     }
+
+    static func == (lhs: Assign, rhs: Assign) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Logical: Declarations {
-    let left: Declarations
+    let left: any Declarations
     let operator_: Token
-    let right: Declarations
+    let right: any Declarations
+    let id: UUID = UUID()
 
-    init(left: Declarations, operator_: Token, right: Declarations) {
+    init(left: any Declarations, operator_: Token, right: any Declarations) {
         self.left = left
         self.operator_ = operator_
         self.right = right
@@ -220,13 +292,18 @@ class Logical: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitLogical(self)
     }
+
+    static func == (lhs: Logical, rhs: Logical) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class While: Declarations {
-    let condition: Declarations
-    let body: Declarations
+    let condition: any Declarations
+    let body: any Declarations
+    let id: UUID = UUID()
 
-    init(condition: Declarations, body: Declarations) {
+    init(condition: any Declarations, body: any Declarations) {
         self.condition = condition
         self.body = body
     }
@@ -234,10 +311,15 @@ class While: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitWhile(self)
     }
+
+    static func == (lhs: While, rhs: While) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Break: Declarations {
     let level: Int
+    let id: UUID = UUID()
 
     init(level: Int) {
         self.level = level
@@ -246,14 +328,19 @@ class Break: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitBreak(self)
     }
+
+    static func == (lhs: Break, rhs: Break) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Call: Declarations {
-    let calee: Declarations
+    let calee: any Declarations
     let paren: Token
-    let arguments: [Declarations]
+    let arguments: [any Declarations]
+    let id: UUID = UUID()
 
-    init(calee: Declarations, paren: Token, arguments: [Declarations]) {
+    init(calee: any Declarations, paren: Token, arguments: [any Declarations]) {
         self.calee = calee
         self.paren = paren
         self.arguments = arguments
@@ -262,14 +349,19 @@ class Call: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitCall(self)
     }
+
+    static func == (lhs: Call, rhs: Call) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class FunctionDecl: Declarations {
     let name: Token
     let params: [Token]
-    let body: [Declarations]
+    let body: [any Declarations]
+    let id: UUID = UUID()
 
-    init(name: Token, params: [Token], body: [Declarations]) {
+    init(name: Token, params: [Token], body: [any Declarations]) {
         self.name = name
         self.params = params
         self.body = body
@@ -278,14 +370,19 @@ class FunctionDecl: Declarations {
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitFunctionDecl(self)
     }
+
+    static func == (lhs: FunctionDecl, rhs: FunctionDecl) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class Return: Declarations {
     let keyword: Token
-    let value: Declarations
+    let value: any Declarations
     let level: Int
+    let id: UUID = UUID()
 
-    init(keyword: Token, value: Declarations, level: Int) {
+    init(keyword: Token, value: any Declarations, level: Int) {
         self.keyword = keyword
         self.value = value
         self.level = level
@@ -293,6 +390,10 @@ class Return: Declarations {
 
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {
         return try visitor.visitReturn(self)
+    }
+
+    static func == (lhs: Return, rhs: Return) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 

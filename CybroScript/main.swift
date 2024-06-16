@@ -29,6 +29,26 @@ class Environment {
         storage[name] = value
     }
     
+    func getAt(_ distance: Int, _ name: String) -> Any? {
+        let env = ancestor(distance)
+        return env.storage[name]
+    }
+    
+    func assignAt(_ distance: Int, _ name: String, _ value: Any?) {
+        let env = ancestor(distance)
+        env.storage[name] = value
+    }
+    
+    func ancestor(_ distance: Int) -> Environment {
+        var environment = self
+        
+        for i in 0...distance {
+            environment = environment.enclosing!
+        }
+        
+        return environment
+    }
+    
     func defineLet(name: String, value: Any?) {
         if storage.keys.contains(name) {
             print("RAISE ERROR, NOT ALLOWED TO HAVE 2 VARIABLES WITH SAME NAME")
@@ -77,6 +97,7 @@ enum RuntimeErrors: Error {
 class Interpreter_: Visitor {
     static var global = Environment()
     var environemnt = global
+    static var locals: [(any Declarations, Int)] = []
     
     init() {
         Interpreter_.global.define(name: "clock", value: FunctionCallableClock())
@@ -157,7 +178,7 @@ class Interpreter_: Visitor {
         return try executeBlock(stmt.statements, Environment(enclosing: environemnt));
     }
       
-    func executeBlock(_ statements: [Declarations], _ environment: Environment) throws -> Any? {
+    func executeBlock(_ statements: [any Declarations], _ environment: Environment) throws -> Any? {
         // Save the current environment
         let previousEnvironment = self.environemnt
         // Set the current environment to the provided environment
@@ -181,7 +202,14 @@ class Interpreter_: Visitor {
 
      func visitAssign(_ declarations: Assign) throws -> Any? {
         var value = try evaluate(expr: declarations.value)
-        environemnt.assign(declarations.name, value!)
+         for val in Interpreter_.locals {
+             if val.0.id == declarations.id {
+                 environemnt.assignAt(val.1, declarations.name.lexeme, value)
+                 return value
+             }
+         }
+        
+        Interpreter_.global.assign(declarations.name, value)
         return value
     }
     
@@ -200,7 +228,16 @@ class Interpreter_: Visitor {
     }
     
     func visitVariable(_ declarations: Variable) throws -> Any? {
-        return environemnt.get(name: declarations.name)
+        return lookupVariable(declarations.name, declarations)
+    }
+    
+    func lookupVariable(_ name: Token, _ expr: any Declarations) -> Any? {
+        for item in Interpreter_.locals {
+            if item.0.id == expr.id {
+                return environemnt.getAt(item.1, name.lexeme)
+            }
+        }
+        return Interpreter_.global.get(name: name)
     }
     
     func visitTernary(_ declarations: Ternary) -> Any? {
@@ -234,7 +271,7 @@ class Interpreter_: Visitor {
         return try evaluate(expr: expr.expression)
     }
 
-    func evaluate(expr: Declarations) throws -> Any? {
+    func evaluate(expr: any Declarations) throws -> Any? {
         return try expr.accept(self)
     }
 
@@ -376,7 +413,7 @@ class Interpreter_: Visitor {
         
     }
     
-    func interpret(statements: [Declarations]) {
+    func interpret(statements: [any Declarations]) {
         do {
               for statement in statements {
                   let value = try execute(stmt: statement);
@@ -386,9 +423,13 @@ class Interpreter_: Visitor {
             }
       }
     
-    func execute(stmt: Declarations) throws -> Any? {
+    func execute(stmt: any Declarations) throws -> Any? {
         return try stmt.accept(self);
       }
+    
+    func resolve(_ expr: any Declarations, _ depth: Int) {
+        Interpreter_.locals.append((expr, depth))
+    }
 }
 
 enum TokenType {
@@ -678,6 +719,8 @@ class Cybro {
         let tokens = scanner.scanTokens()
         let parser = Parser(tokens: tokens)
         let statements = parser.parse()
+        let resolver = Resolver(interpreter: interpreter)
+        resolver.resolve(statements!)
         
         if hadError {
             return

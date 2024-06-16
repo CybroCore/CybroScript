@@ -44,7 +44,7 @@ struct GenerateAst {
             "Var        : name: Token, initializer: Declarations",
             "Let        : name: Token, intializer: Declarations",
             "Variable : name: Token",
-            "If         : condition: Declarations, thenBranch: Declarations, elseBranch: Declarations?",
+            "If         : condition: Declarations, thenBranch: Declarations, elseBranch: (Declarations)?",
             "Assign   : name: Token, value: Declarations",
             "Logical  : left: Declarations, operator_: Token, right: Declarations",
             "While    : condition: Declarations, body: Declarations",
@@ -62,11 +62,18 @@ struct GenerateAst {
         writer.writeLine("import Foundation")
         writer.writeLine()
         
-        writer.writeLine("protocol \(baseName) {")
+        writer.writeLine("protocol \(baseName): Hashable {")
         writer.writeLine("    func accept<V: Visitor>(_ visitor: V) throws -> Any?")
+        writer.writeLine("    var id: UUID { get }")
         writer.writeLine("}")
         writer.writeLine()
         
+        writer.writeLine("extension \(baseName) {")
+        writer.writeLine("    func hash(into hasher: inout Hasher) {")
+        writer.writeLine("        hasher.combine(id)")
+        writer.writeLine("    }")
+        writer.writeLine("}")
+
         defineVisitor(writer, baseName, types)
         writer.writeLine()
         
@@ -89,11 +96,12 @@ struct GenerateAst {
         
         let fields = fieldList.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
         for field in fields {
-            writer.writeLine("    let \(field)")
+                writer.writeLine("    let \(field.replacingOccurrences(of: "Declarations", with: "any Declarations"))")
         }
+        writer.writeLine("    let id: UUID = UUID()")
         writer.writeLine()
         
-        writer.writeLine("    init(\(fieldList)) {")
+        writer.writeLine("    init(\(fieldList.replacingOccurrences(of: "Declarations", with: "any Declarations"))) {")
         for field in fields {
             let nameParts = field.split(separator: " ").map { $0.trimmingCharacters(in: .whitespaces) }
             guard nameParts.count == 2 else {
@@ -107,6 +115,10 @@ struct GenerateAst {
         
         writer.writeLine("    func accept<V: Visitor>(_ visitor: V) throws -> Any? {")
         writer.writeLine("        return try visitor.visit\(className)(self)")
+        writer.writeLine("    }")
+        writer.writeLine()
+        writer.writeLine("    static func == (lhs: \(className), rhs: \(className)) -> Bool {")
+        writer.writeLine("        return lhs.id == rhs.id")
         writer.writeLine("    }")
         writer.writeLine("}")
         writer.writeLine()
@@ -125,3 +137,4 @@ struct GenerateAst {
 func runGenerator() {
     GenerateAst().run()
 }
+
