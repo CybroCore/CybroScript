@@ -29,6 +29,7 @@ protocol Visitor {
     func visitBreak(_ declarations: Break) throws -> Any?
     func visitCall(_ declarations: Call) throws -> Any?
     func visitClass(_ declarations: Class) throws -> Any?
+    func visitGet(_ declarations: Get) throws -> Any?
     func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any?
     func visitReturn(_ declarations: Return) throws -> Any?
 }
@@ -371,6 +372,25 @@ class Class: Declarations {
     }
 
     static func == (lhs: Class, rhs: Class) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+class Get: Declarations {
+    let object: any Declarations
+    let name: Token
+    let id: UUID = UUID()
+
+    init(object: any Declarations, name: Token) {
+        self.object = object
+        self.name = name
+    }
+
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitGet(self)
+    }
+
+    static func == (lhs: Get, rhs: Get) -> Bool {
         return lhs.id == rhs.id
     }
 }

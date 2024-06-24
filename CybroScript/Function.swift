@@ -101,6 +101,16 @@ class CybroClass: Function {
 }
 
 class CybroInstance: Function {
+    final var fields: [String:Any] = [:]
+    
+    func get(name: Token) -> Any? {
+        if let value = fields["\(name.lexeme)"] {
+            return value
+        }
+        
+        return nil
+    }
+    
     func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any? {
         return nil
     }

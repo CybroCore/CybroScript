@@ -8,6 +8,11 @@
 import Foundation
 
 class Resolver: Visitor {
+    func visitGet(_ declarations: Get) throws -> Any? {
+        resolve(declarations.object)
+        return nil
+    }
+    
     func visitClass(_ declarations: Class) throws -> Any? {
         declare(declarations.name);
         define(declarations.name);

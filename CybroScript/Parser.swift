@@ -165,8 +165,12 @@ class Parser {
 
         while true {
             if match(types: .LEFT_PAREN) {
-            expr = try finishCall(expr);
-          } else {
+                expr = try finishCall(expr);
+            } else if (match(types: .DOT)) {
+                let name = try consume(type: .IDENTIFIER, message: "Expect property name after '.'.")
+                expr = Get(object: expr, name: name)
+            }
+            else {
             break;
           }
         }

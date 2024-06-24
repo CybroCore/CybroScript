@@ -106,6 +106,13 @@ class Interpreter_: Visitor {
         Interpreter_.global.define(name: "println", value: FunctionCallablePrintLn())
     }
     
+    func visitGet(_ declarations: Get) throws -> Any? {
+        let object = try evaluate(expr: declarations)
+        if let object = object as? CybroInstance {
+            return object.get(name: expr.name)
+        }
+    }
+    
     func visitReturn(_ declarations: Return) throws -> Any? {
         var value: Any? = nil
         if declarations.value != nil {
