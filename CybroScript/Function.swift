@@ -50,7 +50,6 @@ class CybroFunction: Function {
         return "<fn \(declaration.name.lexeme) \(arity())>"
     }
 }
-
 class FunctionCallableClock: Function {
     func call(_ interpreter: Interpreter_, _ arguments: [Any]) -> Any? {
         return Double(Date().timeIntervalSince1970)
@@ -77,4 +76,47 @@ class FunctionCallablePrintLn: Function {
         1
     }
    
+}
+
+
+class CybroClass: Function {
+    func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any? {
+        let instance = CybroInstance(klass: self)
+        return instance
+    }
+    
+    func arity() -> Int {
+        return 0
+    }
+    
+  final var name: String;
+
+  init(name: String) {
+    self.name = name
+  }
+
+  func toString() -> String {
+    return name;
+  }
+}
+
+class CybroInstance: Function {
+    func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any? {
+        return nil
+    }
+    
+    func arity() -> Int {
+        print("You can't pass arguments into an existing instance!")
+        return 0
+    }
+    
+    private var klass: CybroClass;
+
+  init(klass: CybroClass) {
+    self.klass = klass;
+  }
+
+  func toString() -> String {
+    return klass.name + " instance";
+  }
 }

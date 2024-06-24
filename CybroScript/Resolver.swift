@@ -8,6 +8,12 @@
 import Foundation
 
 class Resolver: Visitor {
+    func visitClass(_ declarations: Class) throws -> Any? {
+        declare(declarations.name);
+        define(declarations.name);
+        return nil;
+    }
+    
     let interpreter: Interpreter_
     var scopes: [[String: Bool]] = []
     

@@ -298,6 +298,7 @@ class Parser {
     
     func declaration() -> (any Declarations)? {
         do {
+            if (match(types: .CLASS)) { return try classDeclaration()}
             if (match(types: .FUN)) { return try function("function") }
             if (match(types: .VAR)) { return try varDeclaration() };
             if (match(types: .LET)) { return try letDeclaration() }
@@ -307,6 +308,20 @@ class Parser {
           synchronize();
           return nil
         }
+      }
+    
+    func classDeclaration() throws -> (any Declarations)? {
+        let name = try consume(type: .IDENTIFIER, message: "Expect class name.");
+        try consume(type: .LEFT_BRACE, message: "Expect '{' before class body.");
+
+        var methods: [FunctionDecl] = [];
+        while (!check(type: .RIGHT_BRACE) && !isAtEnd()) {
+            methods.append(try function("method") as! FunctionDecl);
+        }
+
+        try consume(type: .RIGHT_BRACE, message: "Expect '}' after class body.");
+        
+        return Class(name: name, methods: methods)
       }
     
     func varDeclaration() throws -> any Declarations {

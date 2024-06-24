@@ -28,6 +28,7 @@ protocol Visitor {
     func visitWhile(_ declarations: While) throws -> Any?
     func visitBreak(_ declarations: Break) throws -> Any?
     func visitCall(_ declarations: Call) throws -> Any?
+    func visitClass(_ declarations: Class) throws -> Any?
     func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any?
     func visitReturn(_ declarations: Return) throws -> Any?
 }
@@ -351,6 +352,25 @@ class Call: Declarations {
     }
 
     static func == (lhs: Call, rhs: Call) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+class Class: Declarations {
+    let name: Token
+    let methods: [FunctionDecl]
+    let id: UUID = UUID()
+
+    init(name: Token, methods: [FunctionDecl]) {
+        self.name = name
+        self.methods = methods
+    }
+
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitClass(self)
+    }
+
+    static func == (lhs: Class, rhs: Class) -> Bool {
         return lhs.id == rhs.id
     }
 }

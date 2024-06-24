@@ -95,6 +95,8 @@ enum RuntimeErrors: Error {
 }
 
 class Interpreter_: Visitor {
+    
+    
     static var global = Environment()
     var environemnt = global
     static var locals: [(any Declarations, Int)] = []
@@ -198,6 +200,13 @@ class Interpreter_: Visitor {
         // Restore the previous environment after executing the block
         self.environemnt = previousEnvironment
         return nil
+    }
+    
+    func visitClass(_ declarations: Class) throws -> Any? {
+          environemnt.define(name: declarations.name.lexeme, value: nil);
+        let class_ = CybroClass(name: declarations.name.lexeme);
+        environemnt.assign(declarations.name, class_);
+          return nil;
     }
 
      func visitAssign(_ declarations: Assign) throws -> Any? {
