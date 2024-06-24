@@ -4,5 +4,7 @@ var a = "global";
     print a;
   }
 
-  print showA;
+  showA();
+  var a = "block";
+  showA();
 }

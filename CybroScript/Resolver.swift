@@ -80,7 +80,9 @@ class Resolver: Visitor {
     
     func visitVar(_ declarations: Var) throws -> Any? {
         declare(declarations.name)
-        resolve(declarations.initializer)
+        if declarations.initializer != nil {
+            resolve(declarations.initializer)
+        }
         define(declarations.name)
         return nil
     }
@@ -113,8 +115,8 @@ class Resolver: Visitor {
     }
     
     func resolveLocal(_ expr: any Declarations, _ name: Token) {
-        for (index_, scope) in scopes.enumerated() {
-            if scope.keys.contains(name.lexeme) {
+        for index_ in (0..<scopes.count).reversed() {
+            if scopes[index_].keys.contains(name.lexeme) {
                 interpreter.resolve(expr, scopes.count - 1 - index_)
                 return
             }

@@ -42,8 +42,8 @@ class Environment {
     func ancestor(_ distance: Int) -> Environment {
         var environment = self
         
-        for i in 0...distance {
-            environment = environment.enclosing!
+        for i in 0..<distance {
+            environment = environment.enclosing ?? environment
         }
         
         return environment
@@ -234,7 +234,9 @@ class Interpreter_: Visitor {
     func lookupVariable(_ name: Token, _ expr: any Declarations) -> Any? {
         for item in Interpreter_.locals {
             if item.0.id == expr.id {
-                return environemnt.getAt(item.1, name.lexeme)
+                var val = environemnt.getAt(item.1, name.lexeme)
+                return val
+                
             }
         }
         return Interpreter_.global.get(name: name)
