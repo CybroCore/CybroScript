@@ -34,6 +34,8 @@ class Parser {
             if let expr = expr as? Variable {
                 let name = expr.name
                 return Assign(name: name, value: value)
+            } else if let expr = expr as? Get {
+                return Set_(object: expr.object, name: expr.name, value: value)
             }
             
             throw error(token: equals, message: "Invalid assignment target.")

@@ -8,7 +8,7 @@
 import Foundation
 
 protocol Function {
-    func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any?
+    func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any?
     func arity() -> Int
     func toString() -> String
 }
@@ -28,7 +28,7 @@ class CybroFunction: Function {
         self.declaration = declaration
     }
     
-    func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any? {
+    func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any? {
         let environment = Environment(enclosing: closure)
         for (parameter, argument) in zip(declaration.params, arguments) {
             environment.define(name: parameter.lexeme, value: argument)
@@ -51,7 +51,7 @@ class CybroFunction: Function {
     }
 }
 class FunctionCallableClock: Function {
-    func call(_ interpreter: Interpreter_, _ arguments: [Any]) -> Any? {
+    func call(_ interpreter: Interpreter_, _ arguments: [Any?]) -> Any? {
         return Double(Date().timeIntervalSince1970)
     }
     
@@ -63,11 +63,15 @@ class FunctionCallableClock: Function {
 
 
 class FunctionCallablePrintLn: Function {
-    func call(_ interpreter: Interpreter_, _ arguments: [Any]) -> Any? {
+    func call(_ interpreter: Interpreter_, _ arguments: [Any?]) -> Any? {
         if let fun = arguments[0] as? Function {
             print(fun.toString())
         } else {
-            print(arguments[0])
+            if let value = arguments[0] {
+                print(value)
+            } else {
+                print("nil")
+            }
         }
         return nil
     }
@@ -80,7 +84,7 @@ class FunctionCallablePrintLn: Function {
 
 
 class CybroClass: Function {
-    func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any? {
+    func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any? {
         let instance = CybroInstance(klass: self)
         return instance
     }
@@ -111,7 +115,12 @@ class CybroInstance: Function {
         return nil
     }
     
-    func call(_ interpreter: Interpreter_, _ arguments: [Any]) throws -> Any? {
+    
+    func set(name: Token , value: Any?) {
+        fields[name.lexeme] = value
+    }
+    
+    func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any? {
         return nil
     }
     

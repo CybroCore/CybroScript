@@ -95,8 +95,6 @@ enum RuntimeErrors: Error {
 }
 
 class Interpreter_: Visitor {
-    
-    
     static var global = Environment()
     var environemnt = global
     static var locals: [(any Declarations, Int)] = []
@@ -106,11 +104,30 @@ class Interpreter_: Visitor {
         Interpreter_.global.define(name: "println", value: FunctionCallablePrintLn())
     }
     
-    func visitGet(_ declarations: Get) throws -> Any? {
-        let object = try evaluate(expr: declarations)
+    func visitSet_(_ declarations: Set_) throws -> Any? {
+        let object = try evaluate(expr: declarations.object)
+        
         if let object = object as? CybroInstance {
-            return object.get(name: expr.name)
+            let value = try evaluate(expr: declarations.value)
+            object.set(name: declarations.name, value: value)
+            return value
         }
+        
+        print("Only instances have fields.")
+        return nil
+    }
+    
+    func visitGet(_ declarations: Get) throws -> Any? {
+        let object = try evaluate(expr: declarations.object)
+        if let object = object as? CybroInstance {
+            if let value = object.get(name: declarations.name) {
+                return value
+            } else {
+                return nil
+            }
+        }
+        
+        return nil
     }
     
     func visitReturn(_ declarations: Return) throws -> Any? {

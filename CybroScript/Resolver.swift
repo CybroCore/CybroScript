@@ -8,6 +8,12 @@
 import Foundation
 
 class Resolver: Visitor {
+    func visitSet_(_ declarations: Set_) throws -> Any? {
+        resolve(declarations.value)
+        resolve(declarations.object)
+        return nil
+    }
+    
     func visitGet(_ declarations: Get) throws -> Any? {
         resolve(declarations.object)
         return nil
