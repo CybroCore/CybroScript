@@ -84,6 +84,9 @@ class FunctionCallablePrintLn: Function {
 
 
 class CybroClass: Function {
+    final var name: String;
+    final var methods: [String:Function] = [:]
+
     func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any? {
         let instance = CybroInstance(klass: self)
         return instance
@@ -93,24 +96,37 @@ class CybroClass: Function {
         return 0
     }
     
-  final var name: String;
-
-  init(name: String) {
-    self.name = name
-  }
+    init(name: String, methods: [String:Function]) {
+        self.name = name
+        self.methods = methods
+   }
 
   func toString() -> String {
     return name;
   }
+    
+    func findMethod(name: String) -> Function? {
+        if let method = methods[name] {
+            return method
+        }
+        
+        return nil
+    }
+    
+    
 }
 
 class CybroInstance: Function {
     final var fields: [String:Any] = [:]
-    
+    private var klass: CybroClass;
+
     func get(name: Token) -> Any? {
         if let value = fields["\(name.lexeme)"] {
             return value
         }
+        
+        let method = klass.findMethod(name: name.lexeme)
+        if method != nil { return method }
         
         return nil
     }
@@ -129,7 +145,6 @@ class CybroInstance: Function {
         return 0
     }
     
-    private var klass: CybroClass;
 
   init(klass: CybroClass) {
     self.klass = klass;

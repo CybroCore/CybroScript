@@ -227,10 +227,17 @@ class Interpreter_: Visitor {
     }
     
     func visitClass(_ declarations: Class) throws -> Any? {
-          environemnt.define(name: declarations.name.lexeme, value: nil);
-        let class_ = CybroClass(name: declarations.name.lexeme);
+        environemnt.define(name: declarations.name.lexeme, value: nil);
+        var methods: [String:CybroFunction] = [:]
+        
+        for method in declarations.methods {
+            let function = CybroFunction(method, environemnt)
+            methods["\(method.name.lexeme)"] = function
+        }
+        
+        let class_ = CybroClass(name: declarations.name.lexeme, methods: methods);
         environemnt.assign(declarations.name, class_);
-          return nil;
+        return nil;
     }
 
      func visitAssign(_ declarations: Assign) throws -> Any? {
@@ -469,7 +476,7 @@ class Interpreter_: Visitor {
 
 enum TokenType {
     case LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE
-    case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR
+    case COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR, METHOD
     case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MIN, MAX, BREAK
     case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, LET, WHILE, EOF
     case NUMBER, STRING, IDENTIFIER

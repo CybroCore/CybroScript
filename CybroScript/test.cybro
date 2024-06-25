@@ -1,6 +1,8 @@
-class Bagel {}
-var bagel = Bagel();
-print bagel;
+class Bagel {
+    eat() {
+        print "Sweet!";
+    }
+}
 
-bagel.title = "HI";
-println(bagel.title);
+var bagel = Bagel();
+bagel.eat();
