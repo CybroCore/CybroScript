@@ -5,8 +5,7 @@ class Bagel {
 }
 
 var bagel = Bagel();
-bagel.taste = "YUM";
-
 
 bagel.eat = hi;
+bagel.taste = "YUM";
 bagel.eat();

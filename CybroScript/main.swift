@@ -7,9 +7,8 @@
 
 import Foundation
 
-// https://craftinginterpreters.com/control-flow.html#while-loops
-// At the end. Need to implement break statements for while loops (Forloops are already while loops, and a runtime error should be thrown if a break isn't encapsulated in a forloop.
-// We would like to have a break statement get an argument like break name, where we assign the name inside the while loops (condition, name) or for (..., name)
+// https://arc.net/l/quote/wxbvbyhp
+// Currently Implementing Class related things. This is going to be the turning point of the classes part.
 
 class Environment {
     var enclosing: Environment?
