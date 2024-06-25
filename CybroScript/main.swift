@@ -95,6 +95,10 @@ enum RuntimeErrors: Error {
 }
 
 class Interpreter_: Visitor {
+    func visitThis(_ declarations: This) throws -> Any? {
+        return lookupVariable(declarations.keyword, declarations)
+    }
+    
     static var global = Environment()
     var environemnt = global
     static var locals: [(any Declarations, Int)] = []

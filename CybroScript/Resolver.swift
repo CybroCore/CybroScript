@@ -8,6 +8,19 @@
 import Foundation
 
 class Resolver: Visitor {
+    func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any? {
+        declare(declarations.name)
+        define(declarations.name)
+        
+        resolveFunction(declarations)
+        return nil
+    }
+    
+    func visitThis(_ declarations: This) throws -> Any? {
+        resolveLocal(declarations, declarations.keyword)
+        return nil
+    }
+    
     func visitSet_(_ declarations: Set_) throws -> Any? {
         resolve(declarations.value)
         resolve(declarations.object)
@@ -21,6 +34,15 @@ class Resolver: Visitor {
     
     func visitClass(_ declarations: Class) throws -> Any? {
         declare(declarations.name);
+        
+        beginScope()
+        scopes[scopes.count - 1]["this"] = true
+        
+        for method in declarations.methods {
+            resolveFunction(method)
+        }
+        endScope()
+        
         define(declarations.name);
         return nil;
     }
@@ -178,14 +200,6 @@ class Resolver: Visitor {
             resolve(argument)
         }
         
-        return nil
-    }
-    
-    func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any? {
-        declare(declarations.name)
-        define(declarations.name)
-        
-        resolveFunction(declarations)
         return nil
     }
     

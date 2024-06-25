@@ -1,8 +1,12 @@
 class Bagel {
     eat() {
-        print "Sweet!";
+        print "Sweet!" + this.taste;
     }
 }
 
 var bagel = Bagel();
+bagel.taste = "YUM";
+
+
+bagel.eat = hi;
 bagel.eat();

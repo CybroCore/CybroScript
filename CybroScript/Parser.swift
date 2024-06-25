@@ -206,6 +206,8 @@ class Parser {
             return Literal(value: previous().literal)
         }
         
+        if match(types: .THIS) { return This(keyword: previous())}
+        
         if (match(types: .IDENTIFIER)) {
               return Variable(name: previous());
         }

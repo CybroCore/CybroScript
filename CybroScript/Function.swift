@@ -49,7 +49,14 @@ class CybroFunction: Function {
     func toString() -> String {
         return "<fn \(declaration.name.lexeme) \(arity())>"
     }
+    
+    func bind(_ instance: CybroInstance) -> CybroFunction {
+        let environment = Environment(enclosing: closure)
+        environment.define(name: "this", value: instance)
+        return CybroFunction(declaration, environment)
+    }
 }
+
 class FunctionCallableClock: Function {
     func call(_ interpreter: Interpreter_, _ arguments: [Any?]) -> Any? {
         return Double(Date().timeIntervalSince1970)
@@ -126,7 +133,11 @@ class CybroInstance: Function {
         }
         
         let method = klass.findMethod(name: name.lexeme)
-        if method != nil { return method }
+        if method != nil {
+            if let method = method as? CybroFunction {
+                return method.bind(self)
+            }
+        }
         
         return nil
     }

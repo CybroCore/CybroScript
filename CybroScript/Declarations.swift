@@ -31,6 +31,7 @@ protocol Visitor {
     func visitClass(_ declarations: Class) throws -> Any?
     func visitGet(_ declarations: Get) throws -> Any?
     func visitSet_(_ declarations: Set_) throws -> Any?
+    func visitThis(_ declarations: This) throws -> Any?
     func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any?
     func visitReturn(_ declarations: Return) throws -> Any?
 }
@@ -413,6 +414,23 @@ class Set_: Declarations {
     }
 
     static func == (lhs: Set_, rhs: Set_) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+class This: Declarations {
+    let keyword: Token
+    let id: UUID = UUID()
+
+    init(keyword: Token) {
+        self.keyword = keyword
+    }
+
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitThis(self)
+    }
+
+    static func == (lhs: This, rhs: This) -> Bool {
         return lhs.id == rhs.id
     }
 }
