@@ -230,6 +230,16 @@ class Interpreter_: Visitor {
     }
     
     func visitClass(_ declarations: Class) throws -> Any? {
+        var superclass: Any? = nil
+        
+        if let sup = declarations.superclass {
+            superclass = try evaluate(expr: sup)
+            if let sup_ = superclass as? CybroClass {
+                
+            } else {
+                print("Superclass must be a class! \(declarations.name.lexeme) isn't a class instance!")
+            }
+        }
         environemnt.define(name: declarations.name.lexeme, value: nil);
         var methods: [String:CybroFunction] = [:]
         
@@ -238,8 +248,9 @@ class Interpreter_: Visitor {
             methods["\(method.name.lexeme)"] = function
         }
         
-        let class_ = CybroClass(name: declarations.name.lexeme, methods: methods);
-        environemnt.assign(declarations.name, class_);
+        let klass = CybroClass(name: declarations.name.lexeme, methods: methods, superclass: superclass as? CybroClass);
+        
+        environemnt.assign(declarations.name, klass);
         return nil;
     }
 

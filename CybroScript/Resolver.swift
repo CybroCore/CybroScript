@@ -57,6 +57,14 @@ class Resolver: Visitor {
         
         declare(declarations.name);
         
+        if declarations.superclass != nil && declarations.superclass!.name.lexeme == declarations.name.lexeme {
+            print("\(declarations.superclass!.name). A class can't inherity from itself!")
+        }
+        
+        if let superclass = declarations.superclass {
+            resolve(superclass)
+        }
+        
         beginScope()
         scopes[scopes.count - 1]["this"] = true
         

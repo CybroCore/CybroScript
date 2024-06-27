@@ -362,11 +362,13 @@ class Call: Declarations {
 class Class: Declarations {
     let name: Token
     let methods: [FunctionDecl]
+    let superclass: Variable?
     let id: UUID = UUID()
 
-    init(name: Token, methods: [FunctionDecl]) {
+    init(name: Token, methods: [FunctionDecl], superclass: Variable?) {
         self.name = name
         self.methods = methods
+        self.superclass = superclass
     }
 
     func accept<V: Visitor>(_ visitor: V) throws -> Any? {

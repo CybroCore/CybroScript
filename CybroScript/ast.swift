@@ -50,7 +50,7 @@ struct GenerateAst {
             "While    : condition: Declarations, body: Declarations",
             "Break    : level: Int",
             "Call     : calee: Declarations, paren: Token, arguments: [Declarations]",
-            "Class      : name: Token, methods: [FunctionDecl]",
+            "Class      : name: Token, methods: [FunctionDecl], superclass: Variable?",
             "Get      : object: Declarations, name: Token",
             "Set_      : object: Declarations, name: Token, value: Declarations",
             "This      : keyword: Token",

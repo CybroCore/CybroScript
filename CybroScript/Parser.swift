@@ -320,6 +320,13 @@ class Parser {
     
     func classDeclaration() throws -> (any Declarations)? {
         let name = try consume(type: .IDENTIFIER, message: "Expect class name.");
+        var superclass: Variable? = nil
+        
+        if match(types: .LESS) {
+            try consume(type: .IDENTIFIER, message: "Expected superclass name!")
+            superclass = Variable(name: previous())
+        }
+        
         try consume(type: .LEFT_BRACE, message: "Expect '{' before class body.");
 
         var methods: [FunctionDecl] = [];
@@ -329,7 +336,7 @@ class Parser {
 
         try consume(type: .RIGHT_BRACE, message: "Expect '}' after class body.");
         
-        return Class(name: name, methods: methods)
+        return Class(name: name, methods: methods, superclass: superclass)
       }
     
     func varDeclaration() throws -> any Declarations {

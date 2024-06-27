@@ -1,12 +1,9 @@
-class Bagel {
-    init(hi) {
-        this.hi = hi;
-    }
-    
-    eat() {
-        print "Sweet!" + this.taste;
-    }
+class Doughnut {
+  cook() {
+    print "Fry until golden brown.";
+  }
 }
 
-var bagel = Bagel("hi");
-println(bagel.hi);
+class BostonCream < Doughnut {}
+
+BostonCream().cook();

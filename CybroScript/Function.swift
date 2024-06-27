@@ -108,6 +108,7 @@ class FunctionCallablePrintLn: Function {
 
 class CybroClass: Function {
     final var name: String;
+    final var superclass: CybroClass?;
     final var methods: [String:Function] = [:]
 
     func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any? {
@@ -127,7 +128,8 @@ class CybroClass: Function {
         return initializer?.arity() ?? 0
     }
     
-    init(name: String, methods: [String:Function]) {
+    init(name: String, methods: [String:Function], superclass: CybroClass?) {
+        self.superclass = superclass
         self.name = name
         self.methods = methods
    }
@@ -139,6 +141,10 @@ class CybroClass: Function {
     func findMethod(name: String) -> CybroFunction? {
         if let method = methods[name] {
             return method as! CybroFunction
+        }
+        
+        if let superclass = superclass {
+            return superclass.findMethod(name: name)
         }
         
         return nil
