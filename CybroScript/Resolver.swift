@@ -20,6 +20,11 @@ enum FunctionType {
 }
 
 class Resolver: Visitor {
+    func visitSuper_(_ declarations: Super_) throws -> Any? {
+        resolveLocal(declarations, declarations.keyword)
+        return nil
+    }
+    
     private var currentClass = ClassType.NONE
     private var currentFunction = FunctionType.NONE
 

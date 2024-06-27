@@ -94,9 +94,7 @@ enum RuntimeErrors: Error {
 }
 
 class Interpreter_: Visitor {
-    func visitThis(_ declarations: This) throws -> Any? {
-        return lookupVariable(declarations.keyword, declarations)
-    }
+    
     
     static var global = Environment()
     var environemnt = global
@@ -105,6 +103,26 @@ class Interpreter_: Visitor {
     init() {
         Interpreter_.global.define(name: "clock", value: FunctionCallableClock())
         Interpreter_.global.define(name: "println", value: FunctionCallablePrintLn())
+    }
+    
+    func visitSuper_(_ declarations: Super_) throws -> Any? {
+        for item in Interpreter_.locals {
+            if let it = item.0 as? Super_, it === declarations {
+                var distance = item.1
+                let superclass = environemnt.getAt(distance, "super")
+                let object = environemnt.getAt(distance - 1, "this")
+                    
+                if let superclass = superclass as? CybroClass {
+                    return superclass.findMethod(name: declarations.method.lexeme)?.bind(object as! CybroInstance)
+                }
+            }
+        }
+        
+        return nil
+    }
+    
+    func visitThis(_ declarations: This) throws -> Any? {
+        return lookupVariable(declarations.keyword, declarations)
     }
     
     func visitSet_(_ declarations: Set_) throws -> Any? {
@@ -240,7 +258,14 @@ class Interpreter_: Visitor {
                 print("Superclass must be a class! \(declarations.name.lexeme) isn't a class instance!")
             }
         }
+        
         environemnt.define(name: declarations.name.lexeme, value: nil);
+        
+        if let sup = declarations.superclass {
+            environemnt = Environment(enclosing: environemnt)
+            environemnt.define(name: "super", value: sup)
+        }
+        
         var methods: [String:CybroFunction] = [:]
         
         for method in declarations.methods {
@@ -249,6 +274,10 @@ class Interpreter_: Visitor {
         }
         
         let klass = CybroClass(name: declarations.name.lexeme, methods: methods, superclass: superclass as? CybroClass);
+        
+        if let sup = declarations.superclass {
+            environemnt = environemnt.enclosing!
+        }
         
         environemnt.assign(declarations.name, klass);
         return nil;

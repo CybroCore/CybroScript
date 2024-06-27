@@ -53,6 +53,7 @@ struct GenerateAst {
             "Class      : name: Token, methods: [FunctionDecl], superclass: Variable?",
             "Get      : object: Declarations, name: Token",
             "Set_      : object: Declarations, name: Token, value: Declarations",
+            "Super_     : keyword: Token, method: Token",
             "This      : keyword: Token",
             "FunctionDecl: name: Token, params: [Token], body: [Declarations]",
             "Return: keyword: Token, value: Declarations, level: Int"
@@ -141,3 +142,4 @@ struct GenerateAst {
 func runGenerator() {
     GenerateAst().run()
 }
+

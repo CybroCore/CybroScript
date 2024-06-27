@@ -206,6 +206,13 @@ class Parser {
             return Literal(value: previous().literal)
         }
         
+        if match(types: .SUPER) {
+            let keyword = previous()
+            try consume(type: .DOT, message: "Expect '.' after 'super'.")
+            let method = try consume(type: .IDENTIFIER, message: "Expect superclass method name.")
+            return Super_(keyword: keyword, method: method)
+        }
+        
         if match(types: .THIS) { return This(keyword: previous())}
         
         if (match(types: .IDENTIFIER)) {
