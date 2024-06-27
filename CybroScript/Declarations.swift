@@ -32,6 +32,7 @@ protocol Visitor {
     func visitGet(_ declarations: Get) throws -> Any?
     func visitSet_(_ declarations: Set_) throws -> Any?
     func visitSuper_(_ declarations: Super_) throws -> Any?
+    func visitSubscript(_ declarations: Subscript) throws -> Any?
     func visitThis(_ declarations: This) throws -> Any?
     func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any?
     func visitReturn(_ declarations: Return) throws -> Any?
@@ -436,6 +437,25 @@ class Super_: Declarations {
     }
 
     static func == (lhs: Super_, rhs: Super_) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+class Subscript: Declarations {
+    let object: any Declarations
+    let index: any Declarations
+    let id: UUID = UUID()
+
+    init(object: any Declarations, index: any Declarations) {
+        self.object = object
+        self.index = index
+    }
+
+    func accept<V: Visitor>(_ visitor: V) throws -> Any? {
+        return try visitor.visitSubscript(self)
+    }
+
+    static func == (lhs: Subscript, rhs: Subscript) -> Bool {
         return lhs.id == rhs.id
     }
 }

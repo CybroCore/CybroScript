@@ -20,6 +20,10 @@ enum FunctionType {
 }
 
 class Resolver: Visitor {
+    func visitSubscript(_ declarations: Subscript) throws -> Any? {
+        return nil
+    }
+    
     func visitSuper_(_ declarations: Super_) throws -> Any? {
         resolveLocal(declarations, declarations.keyword)
         return nil

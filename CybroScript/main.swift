@@ -94,7 +94,22 @@ enum RuntimeErrors: Error {
 }
 
 class Interpreter_: Visitor {
-    
+    func visitSubscript(_ declarations: Subscript) throws -> Any? {
+        let object = try evaluate(expr: declarations.object)
+        let index = try evaluate(expr: declarations.index)
+        
+        if let object = object as? String, var index = index as? Double {
+            if object.count < Int(index) {
+                return nil
+            } else {
+                if index < 0 {
+                    index = abs(Double(object.count) + index)
+                }
+                return object[object.index(object.startIndex, offsetBy: Int(index))]
+            }
+        }
+        return nil
+    }
     
     static var global = Environment()
     var environemnt = global
@@ -523,6 +538,7 @@ enum TokenType {
     case BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MIN, MAX, BREAK
     case AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR, PRINT, RETURN, SUPER, THIS, TRUE, VAR, LET, WHILE, EOF
     case NUMBER, STRING, IDENTIFIER
+    case LEFT_SQUARE_BRACE, RIGHT_SQUARE_BRACE
 }
 
 let keywords: [String: TokenType] = [
@@ -604,6 +620,8 @@ class Scanner {
         case "+": addToken(.PLUS)
         case ";": addToken(.SEMICOLON)
         case "*": addToken(.STAR)
+        case "[": addToken(.LEFT_SQUARE_BRACE)
+        case "]": addToken(.RIGHT_SQUARE_BRACE)
         case "~":
             if match(expected: "~") && peek() == " " {
                 addToken(.MAX)
