@@ -9,4 +9,4 @@
 9. Implement "GetInput" from console functionality
 10. Implement Networking Functionality
 11. Implement Audio, Visual input and output
-12. Depending on the commits, start adding more ideas.
+12. Implement simple ollama interaction directly!
