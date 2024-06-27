@@ -1011,36 +1011,6 @@
             endingLineNumber = "337"
             landmarkName = "visitPrint(_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A6465D84-7F33-43B2-8F6A-6C21E1A1FCB6 - 66ef6a08ee89b3dc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CybroScript.Interpreter_.visitPrint(CybroScript.Print) throws -&gt; Swift.Optional&lt;Any&gt;"
-                  moduleName = "CybroScript"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/simonferns/Programming/CybroScript/CybroScript/main.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "337"
-                  endingLineNumber = "337">
-               </Location>
-               <Location
-                  uuid = "A6465D84-7F33-43B2-8F6A-6C21E1A1FCB6 - 66ef6a08ee89b3dc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CybroScript.Interpreter_.visitPrint(CybroScript.Print) throws -&gt; Swift.Optional&lt;Any&gt;"
-                  moduleName = "CybroScript"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/simonferns/Programming/CybroScript/CybroScript/main.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "337"
-                  endingLineNumber = "337">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -38,6 +38,7 @@
 		385D02332C1B289800317EED /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		38A982932C1D7C2400420C1B /* Function.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
 		38C2F1C52C1ED59400C8A957 /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
+		38D9DE072C2DBC3A006A753D /* Todos.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Todos.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				38526B772C1AEC3B00AE4DB9 /* main.swift */,
+				38D9DE072C2DBC3A006A753D /* Todos.txt */,
 				38526B842C1AF56800AE4DB9 /* test.cybro */,
 				38A982932C1D7C2400420C1B /* Function.swift */,
 				385D02332C1B289800317EED /* Parser.swift */,
