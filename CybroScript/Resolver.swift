@@ -70,6 +70,11 @@ class Resolver: Visitor {
             resolve(superclass)
         }
         
+        if let superclass = declarations.superclass {
+            beginScope()
+            scopes[scopes.count - 1]["super"] = true
+        }
+        
         beginScope()
         scopes[scopes.count - 1]["this"] = true
         
@@ -85,6 +90,11 @@ class Resolver: Visitor {
         endScope()
         
         define(declarations.name);
+        
+        if let superclass = declarations.superclass {
+            endScope()
+        }
+        
         currentClass = enclosingClass
         
         return nil;

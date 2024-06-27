@@ -107,8 +107,8 @@ class Interpreter_: Visitor {
     
     func visitSuper_(_ declarations: Super_) throws -> Any? {
         for item in Interpreter_.locals {
-            if let it = item.0 as? Super_, it === declarations {
-                var distance = item.1
+            if let it = item.0 as? Super_, it == declarations {
+                let distance = item.1
                 let superclass = environemnt.getAt(distance, "super")
                 let object = environemnt.getAt(distance - 1, "this")
                     
@@ -263,7 +263,7 @@ class Interpreter_: Visitor {
         
         if let sup = declarations.superclass {
             environemnt = Environment(enclosing: environemnt)
-            environemnt.define(name: "super", value: sup)
+            environemnt.define(name: "super", value: superclass)
         }
         
         var methods: [String:CybroFunction] = [:]
