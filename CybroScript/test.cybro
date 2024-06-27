@@ -1,11 +1,12 @@
 class Bagel {
+    init(hi) {
+        this.hi = hi;
+    }
+    
     eat() {
         print "Sweet!" + this.taste;
     }
 }
 
-var bagel = Bagel();
-
-bagel.eat = hi;
-bagel.taste = "YUM";
-bagel.eat();
+var bagel = Bagel("hi");
+println(bagel.hi);

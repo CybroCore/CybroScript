@@ -7,16 +7,35 @@
 
 import Foundation
 
+enum ClassType {
+    case NONE
+    case CLASS
+}
+
+enum FunctionType {
+    case NONE
+    case FUNCTION
+    case INITIALIZER
+    case METHOD
+}
+
 class Resolver: Visitor {
+    private var currentClass = ClassType.NONE
+    private var currentFunction = FunctionType.NONE
+
     func visitFunctionDecl(_ declarations: FunctionDecl) throws -> Any? {
         declare(declarations.name)
         define(declarations.name)
         
-        resolveFunction(declarations)
+        resolveFunction(declarations, .FUNCTION)
         return nil
     }
     
     func visitThis(_ declarations: This) throws -> Any? {
+        if currentClass == .NONE {
+            print("Can't use this outside of a class!")
+            return nil
+        }
         resolveLocal(declarations, declarations.keyword)
         return nil
     }
@@ -33,17 +52,28 @@ class Resolver: Visitor {
     }
     
     func visitClass(_ declarations: Class) throws -> Any? {
+        let enclosingClass = currentClass
+        currentClass = .CLASS
+        
         declare(declarations.name);
         
         beginScope()
         scopes[scopes.count - 1]["this"] = true
         
         for method in declarations.methods {
-            resolveFunction(method)
+            var declaration = FunctionType.METHOD
+            
+            if method.name.lexeme == "init" {
+                declaration = .INITIALIZER
+            }
+            
+            resolveFunction(method, declaration)
         }
         endScope()
         
         define(declarations.name);
+        currentClass = enclosingClass
+        
         return nil;
     }
     
@@ -203,7 +233,10 @@ class Resolver: Visitor {
         return nil
     }
     
-    func resolveFunction(_ funct: FunctionDecl) {
+    func resolveFunction(_ funct: FunctionDecl, _ type: FunctionType) {
+        let enclosingFunction = currentFunction;
+        currentFunction = type
+        
         beginScope()
         for token in funct.params {
             declare(token)
@@ -211,10 +244,21 @@ class Resolver: Visitor {
         }
         resolve(funct.body)
         endScope()
+        currentFunction = enclosingFunction
     }
     
     func visitReturn(_ declarations: Return) throws -> Any? {
+        if currentFunction == .NONE {
+            print("You can't return from top level code!")
+        }
+        
+        
         if declarations.value != nil {
+            if currentFunction == .INITIALIZER {
+                print("Sorry, Can't return from INITIALIZER!")
+                return nil
+            }
+            
             resolve(declarations.value)
         }
         return nil

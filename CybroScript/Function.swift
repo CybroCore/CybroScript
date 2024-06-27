@@ -22,8 +22,10 @@ extension Function {
 class CybroFunction: Function {
     let declaration: FunctionDecl
     var closure: Environment
+    let isInitializer: Bool
     
-    init(_ declaration: FunctionDecl, _ closure: Environment) {
+    init(_ declaration: FunctionDecl, _ closure: Environment, _ isInitializer: Bool) {
+        self.isInitializer = isInitializer
         self.closure = closure
         self.declaration = declaration
     }
@@ -37,8 +39,10 @@ class CybroFunction: Function {
         do {
             try interpreter.executeBlock(declaration.body, environment)
         } catch RuntimeErrors.invalidReturnType(let value){
+            if isInitializer { return closure.getAt(0, "this")}
             return value
         }
+        if isInitializer { return closure.getAt(0, "this")}
         return nil
     }
     
@@ -53,7 +57,7 @@ class CybroFunction: Function {
     func bind(_ instance: CybroInstance) -> CybroFunction {
         let environment = Environment(enclosing: closure)
         environment.define(name: "this", value: instance)
-        return CybroFunction(declaration, environment)
+        return CybroFunction(declaration, environment, isInitializer)
     }
 }
 
@@ -68,6 +72,17 @@ class FunctionCallableClock: Function {
 
 }
 
+func unwrapOptional(_ value: Any?) -> Any? {
+    if let value = value {
+        let mirror = Mirror(reflecting: value)
+        if mirror.displayStyle == .optional, let child = mirror.children.first {
+            return unwrapOptional(child.value)
+        } else {
+            return "\(value)"
+        }
+    }
+    return nil
+}
 
 class FunctionCallablePrintLn: Function {
     func call(_ interpreter: Interpreter_, _ arguments: [Any?]) -> Any? {
@@ -75,7 +90,8 @@ class FunctionCallablePrintLn: Function {
             print(fun.toString())
         } else {
             if let value = arguments[0] {
-                print(value)
+                let value = unwrapOptional(value)
+                print(value!)
             } else {
                 print("nil")
             }
@@ -96,11 +112,19 @@ class CybroClass: Function {
 
     func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any? {
         let instance = CybroInstance(klass: self)
+        let initializer = findMethod(name: "init")
+        
+        if let initializer = initializer {
+            try initializer.bind(instance).call(interpreter, arguments)
+        }
+        
         return instance
     }
     
     func arity() -> Int {
-        return 0
+        let initializer = findMethod(name: "init")
+        if initializer == nil { return 0 }
+        return initializer?.arity() ?? 0
     }
     
     init(name: String, methods: [String:Function]) {
@@ -112,9 +136,9 @@ class CybroClass: Function {
     return name;
   }
     
-    func findMethod(name: String) -> Function? {
+    func findMethod(name: String) -> CybroFunction? {
         if let method = methods[name] {
-            return method
+            return method as! CybroFunction
         }
         
         return nil
