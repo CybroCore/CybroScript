@@ -1,7 +1,22 @@
-
-var st = "HI";
-
-var count = 0;
-while (true) {
-    print "HI"[0];
+fun BuildArray(lala) {
+    println(lala);
+    var total_args = __count__;
+    println(__getarg__(__count__ - 1));
+    
+    fun help() {
+        print __count__;
+    }
+    
+    help(1, 3, 4, 5);
+    
 }
+
+BuildArray("lalal", "HHLH");
+var a = "hi";
+print a[0];
+
+fun printString(str) {
+    print(str[__count__]);
+}
+
+printString("HI");

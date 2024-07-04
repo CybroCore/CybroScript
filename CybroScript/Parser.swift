@@ -175,11 +175,9 @@ class Parser {
                 let name = try consume(type: .IDENTIFIER, message: "Expect property name after '.'.")
                 expr = Get(object: expr!, name: name)
             } else if match(types: .LEFT_SQUARE_BRACE) {
-                if let expr_ = expr as? Literal {
-                    let index = try expression()
-                    try consume(type: .RIGHT_SQUARE_BRACE, message: "Expect ']' after index.")
-                    expr = Subscript(object: expr_, index: index)
-                }
+                let index = try expression()
+                try consume(type: .RIGHT_SQUARE_BRACE, message: "Expect ']' after index.")
+                expr = Subscript(object: expr!, index: index)
             }
             else {
             break;
