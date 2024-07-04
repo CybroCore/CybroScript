@@ -1,1 +1,7 @@
-print "HI"[-3];
+
+var st = "HI";
+
+var count = 0;
+while (true) {
+    print "HI"[0];
+}

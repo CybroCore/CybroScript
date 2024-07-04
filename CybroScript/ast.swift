@@ -49,12 +49,12 @@ struct GenerateAst {
             "Logical  : left: Declarations, operator_: Token, right: Declarations",
             "While    : condition: Declarations, body: Declarations",
             "Break    : level: Int",
-            "Call     : calee: Declarations, paren: Token, arguments: [Declarations]",
-            "Class      : name: Token, methods: [FunctionDecl], superclass: Variable?",
+            "Call     : calee: Declarations, paren: Token, arguments: [Declarations]", "Class      : name: Token, methods: [FunctionDecl], superclass: Variable?",
             "Get      : object: Declarations, name: Token",
             "Set_      : object: Declarations, name: Token, value: Declarations",
             "Super_     : keyword: Token, method: Token",
             "Subscript     : object: Declarations, index: Declarations",
+            "PrimitiveArray     : values: [Declarations]",
             "This      : keyword: Token",
             "FunctionDecl: name: Token, params: [Token], body: [Declarations]",
             "Return: keyword: Token, value: Declarations, level: Int"
@@ -143,3 +143,4 @@ struct GenerateAst {
 func runGenerator() {
     GenerateAst().run()
 }
+

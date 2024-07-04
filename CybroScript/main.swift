@@ -94,6 +94,10 @@ enum RuntimeErrors: Error {
 }
 
 class Interpreter_: Visitor {
+    func visitPrimitiveArray(_ declarations: PrimitiveArray) throws -> Any? {
+        return nil
+    }
+    
     func visitSubscript(_ declarations: Subscript) throws -> Any? {
         let object = try evaluate(expr: declarations.object)
         let index = try evaluate(expr: declarations.index)
@@ -118,6 +122,7 @@ class Interpreter_: Visitor {
     init() {
         Interpreter_.global.define(name: "clock", value: FunctionCallableClock())
         Interpreter_.global.define(name: "println", value: FunctionCallablePrintLn())
+        Interpreter_.global.define(name: "manyProperties", value: FunctionCallableManyProperties())
     }
     
     func visitSuper_(_ declarations: Super_) throws -> Any? {
@@ -183,9 +188,6 @@ class Interpreter_: Visitor {
         }
         
         if let function = calee as? Function {
-            if arguments.count !=  function.arity() {
-                print("To many, or to little arguments passed for \(declarations.paren). Got \(arguments.count) but expected \(function.arity())")
-            }
             return try function.call(self, arguments as [Any])
         } else {
             print("Can only call to functions & classes")
@@ -240,13 +242,17 @@ class Interpreter_: Visitor {
         return try executeBlock(stmt.statements, Environment(enclosing: environemnt));
     }
       
-    func executeBlock(_ statements: [any Declarations], _ environment: Environment) throws -> Any? {
+    func executeBlock(_ statements: [any Declarations], _ environment: Environment, _ count: Double = 0, _ arguments: [Any?] = []) throws -> Any? {
         // Save the current environment
         let previousEnvironment = self.environemnt
         // Set the current environment to the provided environment
         self.environemnt = environment
         
         // Execute each statement in the block
+        try execute(stmt: Var(name: Token(type: .IDENTIFIER, lexeme: "__count__", literal: 0, line: 0), initializer: Literal(value: count)))
+        try execute(stmt: Var(name: Token(type: .IDENTIFIER, lexeme: "__args__", literal: 0, line: 0), initializer: Literal(value: arguments)))
+        try execute(stmt: Var(name: Token(type: .IDENTIFIER, lexeme: "__getarg__", literal: 0, line: 0), initializer: Literal(value: FunctionCallableGetArg(arguments: arguments))))
+        
         for statement in statements {
             do {
                 _ = try execute(stmt: statement)
@@ -335,6 +341,11 @@ class Interpreter_: Visitor {
                 var val = environemnt.getAt(item.1, name.lexeme)
                 return val
                 
+            }
+        }
+        for item in self.environemnt.storage {
+            if item.key == name.lexeme {
+                return item.value
             }
         }
         return Interpreter_.global.get(name: name)

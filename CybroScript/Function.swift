@@ -32,12 +32,13 @@ class CybroFunction: Function {
     
     func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any? {
         let environment = Environment(enclosing: closure)
+        
         for (parameter, argument) in zip(declaration.params, arguments) {
             environment.define(name: parameter.lexeme, value: argument)
         }
         
         do {
-            try interpreter.executeBlock(declaration.body, environment)
+            try interpreter.executeBlock(declaration.body, environment, Double(arguments.count), arguments)
         } catch RuntimeErrors.invalidReturnType(let value){
             if isInitializer { return closure.getAt(0, "this")}
             return value
@@ -103,6 +104,42 @@ class FunctionCallablePrintLn: Function {
         1
     }
    
+}
+
+class FunctionCallableGetArg: Function {
+    let arguments: [Any?]
+    
+    init(arguments: [Any?]) {
+        self.arguments = arguments
+    }
+    func call(_ interpreter: Interpreter_, _ arguments: [Any?]) -> Any? {
+        var argument = Int(exactly: Double("\(unwrapOptional(arguments[0])!)")!)!
+        
+        if argument > self.arguments.count - 1 {
+            return "nil"
+        } else {
+            return self.arguments[argument]
+        }
+    }
+    
+    func arity() -> Int {
+        1
+    }
+   
+}
+
+class FunctionCallableManyProperties: Function {
+    func call(_ interpreter: Interpreter_, _ arguments: [Any?]) throws -> Any? {
+        for argument in arguments {
+            print(argument)
+        }
+        return nil
+    }
+    
+    func arity() -> Int {
+        return -1
+    }
+    
 }
 
 

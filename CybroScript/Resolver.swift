@@ -20,6 +20,10 @@ enum FunctionType {
 }
 
 class Resolver: Visitor {
+    func visitPrimitiveArray(_ declarations: PrimitiveArray) throws -> Any? {
+        return nil
+    }
+    
     func visitSubscript(_ declarations: Subscript) throws -> Any? {
         return nil
     }

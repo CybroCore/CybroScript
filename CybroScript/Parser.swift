@@ -163,25 +163,30 @@ class Parser {
     
     
     func call() throws -> any Declarations {
-        var expr = try primary();
+        var expr: (any Declarations)? = nil
+        if peek().type != .LEFT_SQUARE_BRACE {
+            expr = try primary();
+        }
 
         while true {
             if match(types: .LEFT_PAREN) {
-                expr = try finishCall(expr);
+                expr = try finishCall(expr!);
             } else if (match(types: .DOT)) {
                 let name = try consume(type: .IDENTIFIER, message: "Expect property name after '.'.")
-                expr = Get(object: expr, name: name)
+                expr = Get(object: expr!, name: name)
             } else if match(types: .LEFT_SQUARE_BRACE) {
-                let index = try expression()
-                try consume(type: .RIGHT_SQUARE_BRACE, message: "Expect ']' after index.")
-                expr = Subscript(object: expr, index: index)
+                if let expr_ = expr as? Literal {
+                    let index = try expression()
+                    try consume(type: .RIGHT_SQUARE_BRACE, message: "Expect ']' after index.")
+                    expr = Subscript(object: expr_, index: index)
+                }
             }
             else {
             break;
           }
         }
 
-        return expr;
+        return expr!;
       }
     
     func finishCall(_ callee: any Declarations) throws -> any Declarations {
